@@ -6,6 +6,7 @@ from transformers import GPT2Config, GPT2LMHeadModel
 from transformers.pytorch_utils import Conv1D
 
 from lora_explainer.adapter import LoraAttention, inject
+from lora_explainer.weights import attention_weight, lora_deltas
 
 WIDTH = 16
 
@@ -65,3 +66,19 @@ def test_only_adapter_parameters_train() -> None:
     trainable = {name.rsplit(".", 1)[-1] for name, p in model.named_parameters() if p.requires_grad}
     assert trainable == {"A_q", "B_q", "A_v", "B_v"}
     assert sum(p.requires_grad for p in model.parameters()) == 2 * 4
+
+
+def test_attention_weight_uses_hu_orientation() -> None:
+    model = inject(tiny_model(), rank=2)
+    conv = model.transformer.h[1].attn.c_attn.base.weight.double()
+    assert torch.equal(attention_weight(model, 1, "q"), conv[:, :WIDTH].T)
+    assert torch.equal(attention_weight(model, 1, "v"), conv[:, 2 * WIDTH :].T)
+
+
+def test_lora_delta_is_b_times_a() -> None:
+    model = inject(tiny_model(), rank=2)
+    layer = model.transformer.h[1].attn.c_attn
+    with torch.no_grad():
+        layer.B_v.normal_()
+    expected = (layer.B_v @ layer.A_v).detach().double()
+    torch.testing.assert_close(lora_deltas(model, 1)["v"], expected)
