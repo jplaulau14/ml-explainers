@@ -2,6 +2,8 @@
   "accuracy": {
     "base": 0.6089,
     "full": 0.8888,
+    "lora1": 0.836,
+    "lora8": 0.8555,
     "lora64": 0.8704
   },
   "matrices": [
@@ -63,8 +65,10 @@
     }
   ],
   "trainSeconds": {
-    "full": 211.0,
-    "lora64": 135.6
+    "full": 214.9,
+    "lora1": 135.2,
+    "lora8": 134.0,
+    "lora64": 134.1
   },
   "cpu": "Apple M3 Pro"
 }

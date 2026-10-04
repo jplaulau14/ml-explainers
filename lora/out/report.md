@@ -6,6 +6,8 @@
 | --- | --- |
 | base | 0.6089 |
 | full | 0.8888 |
+| lora1 | 0.8360 |
+| lora8 | 0.8555 |
 | lora64 | 0.8704 |
 
 ## Relative error by rank
@@ -21,7 +23,9 @@
 
 | Preset | Train seconds |
 | --- | --- |
-| full | 211 |
-| lora64 | 136 |
+| full | 215 |
+| lora1 | 135 |
+| lora8 | 134 |
+| lora64 | 134 |
 
 CPU: Apple M3 Pro
