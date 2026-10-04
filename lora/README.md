@@ -3,7 +3,7 @@
 ## What this is
 
 Companion code for the essay [Why LoRA works: fine-tuning a giant model with a tiny matrix](https://www.patslaurel.com/writing/why-lora-works).
-It fine-tunes GPT-2 small on SST-2 twice, once in full and once with LoRA, and exports the weight update for two attention matrices so the essay can show how much of it a low-rank matrix can rebuild.
+It fine-tunes GPT-2 small on SST-2 in full and with LoRA at ranks 1, 8 and 64, and exports the weight update for two attention matrices so the essay can show how much of it a low-rank matrix can rebuild.
 
 ## Run it
 
@@ -14,9 +14,9 @@ uv sync
 uv run lora-explainer all
 ```
 
-This downloads GPT-2 small and SST-2 (about 550 MB), trains both presets on the CPU and rewrites `out/`.
-It took about 7 minutes on an Apple M3 Pro. No GPU, API key or login is needed.
-Run one step at a time with `train --preset full`, `train --preset lora64`, `export` and `report`.
+This downloads GPT-2 small and SST-2 (about 550 MB), trains all four presets on the CPU and rewrites `out/`.
+It took about 12 minutes on an Apple M3 Pro. No GPU, API key or login is needed.
+Run one step at a time with `train --preset <name>` for `full`, `lora1`, `lora8` and `lora64`, then `export` and `report`.
 `uv run pytest` checks the math and the committed files without downloading anything.
 
 ## What you get
@@ -37,6 +37,8 @@ The essay rebuilds the crop at rank r as `u[:, :r] @ diag(sigma[:r]) @ v[:, :r].
 | --- | --- |
 | base | 0.6089 |
 | full | 0.8888 |
+| lora1 | 0.8360 |
+| lora8 | 0.8555 |
 | lora64 | 0.8704 |
 
 Relative Frobenius error of the best rank-r rebuild of ΔW, and the rank needed to keep 90% and 99% of its energy:
@@ -50,13 +52,13 @@ Relative Frobenius error of the best rank-r rebuild of ΔW, and the rank needed 
 
 ## How this maps to the essay
 
-- Claim 1, BA has rank at most r: `tests/test_adapter.py::test_claim_1_update_rank_is_at_most_r`
-- Claim 2, B = 0 means training starts from the base model: `tests/test_adapter.py::test_claim_2_injected_model_starts_identical`
-- Claim 3, BA merges into W with no extra cost: `tests/test_adapter.py::test_claim_3_merged_weight_matches_adapter`
-- Claim 4, 1536 times fewer parameters for a 12288 × 12288 matrix at r = 4: `tests/test_counts.py::test_claim_4_gpt3_sized_matrix`
-- Claim 5, GPT-3 adapter sizes for r = 1, 4 and 8: `tests/test_counts.py::test_claim_5_gpt3_adapter_size`
-- Claim 8, truncation error is the tail of the singular values: `tests/test_spectrum.py::test_claim_8_truncation_error_is_tail_of_spectrum`
-- Claim 9, multiply-adds with and without merging: `tests/test_counts.py::test_claim_9_multiply_adds`
+- BA has rank at most r: `tests/test_adapter.py::test_claim_1_update_rank_is_at_most_r`
+- B = 0 means training starts from the base model: `tests/test_adapter.py::test_claim_2_injected_model_starts_identical`
+- BA merges into W with no extra cost: `tests/test_adapter.py::test_claim_3_merged_weight_matches_adapter`
+- A 12288 × 12288 matrix at r = 4 needs 1536 times fewer parameters: `tests/test_counts.py::test_claim_4_gpt3_sized_matrix`
+- GPT-3 adapter sizes for r = 1, 4 and 8: `tests/test_counts.py::test_claim_5_gpt3_adapter_size`
+- The truncation error is the tail of the singular values: `tests/test_spectrum.py::test_claim_8_truncation_error_is_tail_of_spectrum`
+- Multiply-adds with and without merging: `tests/test_counts.py::test_claim_9_multiply_adds`
 
 ## Notes
 
@@ -65,6 +67,7 @@ Relative Frobenius error of the best rank-r rebuild of ΔW, and the rank needed 
 - A starts from Kaiming-uniform as in microsoft/LoRA. The paper describes a Gaussian.
 - GPT-2 stores q, k and v in one `Conv1D`. W_q is `c_attn.weight[:, 0:768].T` and W_v is `c_attn.weight[:, 1536:2304].T`.
 - For the full run, ΔW is W after training minus W before.
+- lora1 and lora8 only report accuracy. They use the same learning rate as lora64, with no tuning per rank.
 - Reruns on the same machine give the same numbers. Other CPUs can differ in the last digits.
 
 ## Sources
