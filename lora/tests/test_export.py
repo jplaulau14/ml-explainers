@@ -67,3 +67,13 @@ def test_higher_rank_rebuild_is_closer(path: Path) -> None:
     original = torch.tensor(payload["original"], dtype=torch.float64)
     errors = [torch.linalg.matrix_norm(original - rebuild(payload, r)).item() for r in (1, 64)]
     assert errors[1] < errors[0]
+
+
+@pytest.mark.parametrize(
+    "path", [p for p in EXPORTS if p.name.startswith("lora64")], ids=lambda p: p.name
+)
+def test_lora64_rank_64_rebuild_matches_original(path: Path) -> None:
+    payload = load(path)
+    original = torch.tensor(payload["original"], dtype=torch.float64)
+    gap = torch.linalg.matrix_norm(original - rebuild(payload, 64))
+    assert (gap / torch.linalg.matrix_norm(original)).item() < 1e-4
