@@ -6,7 +6,7 @@ from typing import Any
 import torch
 
 from lora_explainer.adapter import Which
-from lora_explainer.config import PRESETS
+from lora_explainer.config import EXPORTED, PRESETS
 from lora_explainer.evaluate import base_accuracy, validation_accuracy
 from lora_explainer.export import build_payload, export_path, write_payload
 from lora_explainer.report import build_results, write_report
@@ -32,7 +32,7 @@ def train_command(preset: str) -> None:
 
 
 def export_command() -> None:
-    for preset in PRESETS:
+    for preset in EXPORTED:
         deltas = torch.load(RUNS / preset / "deltas.pt")
         metadata = load_metadata(preset)
         for matrix in MATRICES:
@@ -46,7 +46,7 @@ def report_command() -> None:
     set_determinism(config)
     revisions = metadata["full"]["modelRevision"], metadata["full"]["datasetRevision"]
     base = base_accuracy(config, *revisions)
-    paths = [export_path(OUT, preset, matrix) for preset in PRESETS for matrix in MATRICES]
+    paths = [export_path(OUT, preset, matrix) for preset in EXPORTED for matrix in MATRICES]
     payloads = [json.loads(path.read_text()) for path in paths]
     write_report(build_results(base, metadata, payloads), OUT)
     print(f"wrote {(OUT / 'report.md').relative_to(ROOT)}")
@@ -66,7 +66,7 @@ def build_parser() -> argparse.ArgumentParser:
     train_parser.add_argument("--preset", choices=sorted(PRESETS), required=True)
     commands.add_parser("export", help="write singular value JSON files to out/")
     commands.add_parser("report", help="write out/results.json and out/report.md")
-    commands.add_parser("all", help="train both presets, export and report")
+    commands.add_parser("all", help="train every preset, export and report")
     return parser
 
 

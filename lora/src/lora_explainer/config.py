@@ -22,5 +22,8 @@ class RunConfig:
 
 
 FULL = RunConfig(name="full", mode="full", learning_rate=5e-5)
+LORA1 = RunConfig(name="lora1", mode="lora", learning_rate=5e-4, rank=1)
+LORA8 = RunConfig(name="lora8", mode="lora", learning_rate=5e-4, rank=8)
 LORA64 = RunConfig(name="lora64", mode="lora", learning_rate=5e-4, rank=64)
-PRESETS = {preset.name: preset for preset in (FULL, LORA64)}
+PRESETS = {preset.name: preset for preset in (FULL, LORA1, LORA8, LORA64)}
+EXPORTED = (FULL.name, LORA64.name)
