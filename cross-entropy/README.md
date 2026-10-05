@@ -61,7 +61,7 @@ Where each start begins, seed 0, on the test set:
 
 From the gentle start the two losses tie. From the confident start squared error stalls: at epoch 0, 864 of the 1,077 training digits give the right class less than 1e-8, and for those the squared-error gradient on the logits averages 0.019 against 1.394 for cross-entropy. After 30 epochs of squared-error training, 530 digits are still in that bucket.
 
-The plan picked a hook digit before training: test digit 12, an 8, the most confidently wrong of the 10 fixed digits. The confident start is certain it is a 9. With cross-entropy the model calls it an 8 at epochs 10, 14, 16, 17 and 25 to 29, and not at epoch 30; with squared error it never does. Both models end that run certain it is a 1, so the essay's opening shows all 450 test digits (`field.json`) instead of one, and digit 12 appears in the replay as an example of how a learning rate of 100 makes cross-entropy flip back and forth.
+The plan picked a hook digit before training: test digit 12, an 8, the most confidently wrong of the 10 fixed digits. The confident start is certain it is a 9. With cross-entropy the model calls it an 8 at epochs 10, 14, 16, 17 and 24 to 28, and not at epoch 30; with squared error it never does. Both models end that run certain it is a 1, so the essay's opening shows all 450 test digits (`field.json`) instead of one, and digit 12 appears in the replay as an example of how a learning rate of 100 makes cross-entropy flip back and forth.
 
 ## How this maps to the essay
 
