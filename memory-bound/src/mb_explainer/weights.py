@@ -54,9 +54,27 @@ def packed_weight_bytes(model: torch.nn.Module) -> tuple[int, int, int]:
     return total, elements, linears
 
 
+def _module_bytes(model: torch.nn.Module, seen: set[int]) -> tuple[int, int]:
+    total = 0
+    elements = 0
+    for module in model.modules():
+        if isinstance(module, torch.nn.Embedding):
+            continue
+        for param in module.parameters(recurse=False):
+            ptr = param.data_ptr()
+            if ptr in seen:
+                continue
+            seen.add(ptr)
+            width = param.numel()
+            total += width * param.element_size()
+            elements += width
+    return total, elements
+
+
 def stored_bytes(model: torch.nn.Module) -> tuple[int, int, int, int]:
     packed, elements, quantized = packed_weight_bytes(model)
-    stored = unique_parameter_bytes(model) + packed
+    body, body_elements = _module_bytes(model, set())
+    stored = body + packed
     linear = linear_weight_bytes(model) + packed
-    count = unique_parameter_count(model) + elements
+    count = body_elements + elements
     return stored, linear, count, quantized

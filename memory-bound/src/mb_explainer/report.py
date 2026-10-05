@@ -150,6 +150,10 @@ def roofline_intro(roof: dict) -> list[str]:
             "Smallest measured point at or above 80% of the compute ceiling: "
             f"{measured_text}."
         ),
+        (
+            "That compute ceiling is the float32 square gemm. "
+            "The bfloat16 square gemm is a separate row in the machine table."
+        ),
     ]
 
 
@@ -190,8 +194,8 @@ def precision_lines(row: dict) -> list[str]:
     if row["status"] != "ok":
         return [f"### {row['dtype']}", "", f"Did not run: {row['error']}"]
     stored = (
-        f"Stored bytes {row['uniqueBytes']}, of which linear weights {row['linearBytes']}. "
-        f"Unique parameters counted {row['uniqueParameters']}. "
+        f"Ceiling bytes {row['uniqueBytes']}, of which linear weights {row['linearBytes']}. "
+        f"Elements in that count {row['uniqueParameters']}. "
         f"Quantized linear layers: {row['quantizedLinears']}."
     )
     kv = (
@@ -351,9 +355,13 @@ def caveats() -> str:
         "These bandwidth and FLOP figures are what this process achieved.",
         "The CPU name string comes from the guest and can be generic.",
         "Arithmetic intensity is compulsory traffic, not a hardware counter of DRAM bytes.",
-        "The decode ceiling counts every parameter once per token.",
-        "An embedding lookup does not read the whole table, so that ceiling is a little low.",
+        "The decode ceiling counts matmul weights, biases, and norms once per token.",
+        "On this tied model the output projection is the embedding matrix, so it is included.",
+        "int8 leaves the fp32 embedding in memory and packs a separate output matrix.",
+        "The int8 ceiling uses the packed copy, not the leftover table.",
         "Dynamic int8 dequantizes inside the kernel, so fewer bytes may not mean more speed.",
+        "bfloat16 decode stayed near the float32 token rate on this CPU.",
+        "Prefill and the square bfloat16 gemm were much faster.",
         "The H100 dense FP16 number is half the product page's sparse number.",
         "The datasheet says sparse figures are twice the dense ones.",
         "That datasheet rounds the same chip to 2,000 TFLOP/s sparse and 3 TB/s.",
