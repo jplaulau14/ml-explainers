@@ -8,9 +8,9 @@ from ce_explainer.data import load_splits
 from ce_explainer.export import (
     LIKELIHOOD_RUN,
     Run,
+    field_payload,
     fixed_indices,
     hero_payload,
-    hook_index,
     likelihood_payload,
     replay_payload,
     write_payload,
@@ -52,9 +52,9 @@ def export_command() -> None:
     splits = load_splits()
     runs = load_runs(EXPORTED)
     fixed = fixed_indices(splits.test)
-    hook = hook_index(runs["confident-ce"][0][0], splits.test, fixed)
     payloads = {
-        "hero.json": hero_payload(splits, runs, hook),
+        "hero.json": hero_payload(splits, runs),
+        "field.json": field_payload(splits, runs),
         "replay.json": replay_payload(splits, runs, fixed),
         "likelihood.json": likelihood_payload(splits, runs[LIKELIHOOD_RUN][0]),
     }
@@ -101,7 +101,7 @@ def build_parser() -> argparse.ArgumentParser:
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("sweep", help="pick each preset's learning rate on the validation split")
     commands.add_parser("train", help="train every preset with five seeds")
-    commands.add_parser("export", help="write hero.json, replay.json and likelihood.json to out/")
+    commands.add_parser("export", help="write hero, field, replay and likelihood JSON to out/")
     commands.add_parser("report", help="write out/results.json and out/report.md")
     commands.add_parser("all", help="sweep, train, export and report")
     return parser

@@ -7,6 +7,14 @@ import numpy as np
 
 from ce_explainer.config import PRESETS
 from ce_explainer.data import Dataset, Splits, source_block
+from ce_explainer.field import (
+    LEVELS_PER_DECADE,
+    MAX_LEVEL,
+    SCHEME,
+    field_bytes,
+    snapshot_bytes,
+    to_base64,
+)
 from ce_explainer.metrics import (
     BUCKET_EDGES,
     gradient_buckets,
@@ -63,26 +71,40 @@ def seed_mean_final(metrics: dict[str, Any]) -> float:
     return float(np.mean([curve["accuracy"][-1] for curve in metrics["seeds"].values()]))
 
 
-def hero_run(run: Run, x: np.ndarray) -> dict[str, Any]:
+def hero_run(run: Run, test: Dataset) -> dict[str, Any]:
     snapshots, metrics = run
     return {
         "learningRate": metrics["learningRate"],
-        "probs": [row[0] for row in example_probs(snapshots, x)],
         "testAccuracy": rounded(metrics["seeds"]["0"]["accuracy"], round_dec),
         "finalAccuracyMean": round_dec(seed_mean_final(metrics)),
     }
 
 
-def hero_payload(splits: Splits, runs: dict[str, Run], hook: int) -> dict[str, Any]:
+def hero_payload(splits: Splits, runs: dict[str, Run]) -> dict[str, Any]:
     test = splits.test
-    x = test.x[[hook]]
-    start = start_stats(runs[HERO_RUNS["ce"]][0][0], test)
+    start = runs[HERO_RUNS["ce"]][0][0]
     return {
         "version": VERSION,
-        "source": source_block(splits),
-        "example": example(test, hook),
-        "start": {"initStd": PRESETS[HERO_RUNS["ce"]].init_std} | rounded(start),
-        "runs": {loss: hero_run(runs[name], x) for loss, name in HERO_RUNS.items()},
+        "source": source_block(splits) | {"seed": 0, "runs": HERO_RUNS},
+        "start": {"initStd": PRESETS[HERO_RUNS["ce"]].init_std} | rounded(start_stats(start, test)),
+        "labels": test.y.tolist(),
+        "encoding": {"scheme": SCHEME, "levelsPerDecade": LEVELS_PER_DECADE, "maxLevel": MAX_LEVEL},
+        "epoch0": to_base64(snapshot_bytes(start, test)),
+        "runs": {loss: hero_run(runs[name], test) for loss, name in HERO_RUNS.items()},
+    }
+
+
+def field_payload(splits: Splits, runs: dict[str, Run]) -> dict[str, Any]:
+    test = splits.test
+    return {
+        "version": VERSION,
+        "source": source_block(splits) | {"seed": 0, "runs": HERO_RUNS},
+        "count": len(test.y),
+        "epochs": len(runs[HERO_RUNS["ce"]][0]),
+        "encoding": {"scheme": SCHEME, "levelsPerDecade": LEVELS_PER_DECADE, "maxLevel": MAX_LEVEL},
+        "runs": {
+            loss: to_base64(field_bytes(runs[name][0], test)) for loss, name in HERO_RUNS.items()
+        },
     }
 
 

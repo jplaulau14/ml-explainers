@@ -11,7 +11,12 @@ from ce_explainer.export import LIKELIHOOD_EPOCHS, fixed_indices, hook_index
 from ce_explainer.model import init_params
 
 OUT = Path(__file__).resolve().parents[1] / "out"
-BUDGETS = {"hero.json": 6_000, "replay.json": 120_000, "likelihood.json": 40_000}
+BUDGETS = {
+    "hero.json": 6_000,
+    "field.json": 45_000,
+    "replay.json": 120_000,
+    "likelihood.json": 40_000,
+}
 EPOCHS = 31
 
 
@@ -31,10 +36,9 @@ def test_sizes(name: str) -> None:
 
 def test_keys_shapes_and_sizes() -> None:
     hero, replay, likelihood = load("hero.json"), load("replay.json"), load("likelihood.json")
-    assert set(hero) == {"version", "source", "example", "start", "runs"}
-    assert len(hero["example"]["pixels"]) == 64
+    assert set(hero) == {"version", "source", "start", "labels", "encoding", "epoch0", "runs"}
     for run in hero["runs"].values():
-        assert shape(run["probs"]) == (EPOCHS, 10) and len(run["testAccuracy"]) == EPOCHS
+        assert len(run["testAccuracy"]) == EPOCHS
     assert set(replay["runs"]) == set(EXPORTED) and len(replay["examples"]) == 10
     for run in replay["runs"].values():
         assert shape(run["probs"]) == (EPOCHS, 10, 10)
@@ -46,8 +50,7 @@ def test_keys_shapes_and_sizes() -> None:
 
 
 def test_probabilities_sum_to_one() -> None:
-    rows = [row for run in load("hero.json")["runs"].values() for row in run["probs"]]
-    rows += [row for run in load("replay.json")["runs"].values() for e in run["probs"] for row in e]
+    rows = [row for run in load("replay.json")["runs"].values() for e in run["probs"] for row in e]
     assert np.abs(np.array(rows).sum(axis=1) - 1).max() <= 1e-3
 
 
@@ -57,7 +60,7 @@ def test_hook_digit_rule() -> None:
     assert [int(test.y[i]) for i in fixed] == list(range(10))
     assert [e["testIndex"] for e in load("replay.json")["examples"]] == fixed
     start = init_params(np.random.default_rng(0), INIT_STD["confident"], 0)
-    assert load("hero.json")["example"]["testIndex"] == hook_index(start, test, fixed)
+    assert load("results.json")["hook"]["testIndex"] == hook_index(start, test, fixed)
 
 
 def test_replay_matches_results() -> None:

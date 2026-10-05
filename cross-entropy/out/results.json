@@ -848,8 +848,8 @@
     }
   },
   "seconds": {
-    "sweep": 10.9,
-    "train": 1.85,
+    "sweep": 10.82,
+    "train": 1.81,
     "export": 0.1
   },
   "cpu": "Intel(R) Xeon(R) Processor"

@@ -54,8 +54,8 @@ Test digit 12, label 8.
 
 | Stage | Seconds |
 | --- | --- |
-| sweep | 10.9 |
-| train | 1.9 |
+| sweep | 10.8 |
+| train | 1.8 |
 | export | 0.1 |
 
 CPU: Intel(R) Xeon(R) Processor

@@ -21,7 +21,8 @@ Run one step at a time with `sweep`, `train`, `export` and `report`.
 
 ## What you get
 
-- `out/hero.json`: one test digit and both confident-start models' probabilities for it at every epoch.
+- `out/hero.json`: the essay's first frame. Test labels, the confident start's stats, both confident-start models' test accuracy per epoch, and every test digit's right-class probability at epoch 0, byte-encoded.
+- `out/field.json`: the same byte encoding for all 450 test digits at all 31 epochs, for both confident-start models (seed 0). Each byte is `128 * correct + min(127, round(8 * -log10(p)))`, where p is the probability the model gives the right class and `correct` is 1 when the model's top class is right. Bytes run epoch by epoch and are stored as base64. Probabilities at or below about 1e-16 share the darkest level.
 - `out/replay.json`: all four linear presets: test accuracy and loss per epoch, five-seed accuracy curves, probabilities for 10 fixed test digits per epoch, and gradient sizes on the logits grouped by how much probability the right class gets.
 - `out/likelihood.json`: the gentle cross-entropy run's probability for the right class on all 450 test digits at 8 epochs, plus the 20 hardest digits.
 - `out/results.json`: learning-rate sweep, five-seed accuracies, starting-point stats, the hook digit's trajectory and run time as numbers.
@@ -60,7 +61,7 @@ Where each start begins, seed 0, on the test set:
 
 From the gentle start the two losses tie. From the confident start squared error stalls: at epoch 0, 864 of the 1,077 training digits give the right class less than 1e-8, and for those the squared-error gradient on the logits averages 0.019 against 1.394 for cross-entropy. After 30 epochs of squared-error training, 530 digits are still in that bucket.
 
-The essay's hook digit is test digit 12, an 8, chosen before training as the most confidently wrong of the 10 fixed digits. The confident start is certain it is a 9. With cross-entropy the model calls it an 8 at epochs 10, 14, 16, 17 and 25 to 29, and not at epoch 30. With squared error it never does.
+The plan picked a hook digit before training: test digit 12, an 8, the most confidently wrong of the 10 fixed digits. The confident start is certain it is a 9. With cross-entropy the model calls it an 8 at epochs 10, 14, 16, 17 and 25 to 29, and not at epoch 30; with squared error it never does. Both models end that run certain it is a 1, so the essay's opening shows all 450 test digits (`field.json`) instead of one, and digit 12 appears in the replay as an example of how a learning rate of 100 makes cross-entropy flip back and forth.
 
 ## How this maps to the essay
 
@@ -78,6 +79,7 @@ The essay's hook digit is test digit 12, an 8, chosen before training as the mos
 - From the gentle start the two are within 1 point: `tests/test_results.py::test_claim_gentle_tie`
 - Learning rates are picked without looking at the test set: `tests/test_results.py::test_claim_lr_chosen_on_validation`
 - The hook digit follows the rule fixed before training: `tests/test_export.py::test_hook_digit_rule`
+- The byte encoding of the test-set field round-trips and matches the reported accuracies: `tests/test_field.py`
 
 ## Notes
 
