@@ -1,0 +1,859 @@
+{
+  "version": 1,
+  "gitCommit": "b1c888febd2184f3a2152b9878e2d2638e704128",
+  "formula": "2 * layers * kvHeads * headDim * bytesPerElement",
+  "weightBytesNote": "parameters times the dtype width, embeddings and norms included",
+  "bandwidthBytesPerSecond": 65594288205.58459,
+  "bandwidthKernel": "float64 triad, best of the timed calls",
+  "models": [
+    {
+      "id": "openai-community/gpt2",
+      "revision": "607a30d783dfa663caf39e06633721c8d4cfcd7e",
+      "configSource": "https://huggingface.co/openai-community/gpt2/raw/main/config.json",
+      "parameterSource": "https://huggingface.co/api/models/openai-community/gpt2",
+      "parameters": 124439808,
+      "safetensorsElements": 137022720,
+      "maskElements": 12582912,
+      "layers": 12,
+      "kvHeads": 12,
+      "headDim": 64,
+      "maxPositionEmbeddings": 1024,
+      "tieWordEmbeddings": true,
+      "nInner": 3072,
+      "nInnerInConfig": null,
+      "dtypes": [
+        {
+          "dtype": "float16",
+          "bytesPerElement": 2,
+          "kvBytesPerToken": 36864,
+          "weightBytes": 248879616,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 248916480,
+              "tokensPerSecondCeiling": 263.51926640447664
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 253598208,
+              "tokensPerSecondCeiling": 258.6543837312312
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 286628352,
+              "tokensPerSecondCeiling": 228.8478712865941
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 399874560,
+              "tokensPerSecondCeiling": 164.03716256814283
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 1456839168,
+              "tokensPerSecondCeiling": 45.02507184484526
+            }
+          ]
+        },
+        {
+          "dtype": "bfloat16",
+          "bytesPerElement": 2,
+          "kvBytesPerToken": 36864,
+          "weightBytes": 248879616,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 248916480,
+              "tokensPerSecondCeiling": 263.51926640447664
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 253598208,
+              "tokensPerSecondCeiling": 258.6543837312312
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 286628352,
+              "tokensPerSecondCeiling": 228.8478712865941
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 399874560,
+              "tokensPerSecondCeiling": 164.03716256814283
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 1456839168,
+              "tokensPerSecondCeiling": 45.02507184484526
+            }
+          ]
+        },
+        {
+          "dtype": "float32",
+          "bytesPerElement": 4,
+          "kvBytesPerToken": 73728,
+          "weightBytes": 497759232,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 497832960,
+              "tokensPerSecondCeiling": 131.75963320223832
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 507196416,
+              "tokensPerSecondCeiling": 129.3271918656156
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 573256704,
+              "tokensPerSecondCeiling": 114.42393564329706
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 799749120,
+              "tokensPerSecondCeiling": 82.01858128407142
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 2913678336,
+              "tokensPerSecondCeiling": 22.51253592242263
+            }
+          ]
+        },
+        {
+          "dtype": "int8",
+          "bytesPerElement": 1,
+          "kvBytesPerToken": 18432,
+          "weightBytes": 124439808,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 124458240,
+              "tokensPerSecondCeiling": 527.0385328089533
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 126799104,
+              "tokensPerSecondCeiling": 517.3087674624624
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 143314176,
+              "tokensPerSecondCeiling": 457.6957425731882
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 199937280,
+              "tokensPerSecondCeiling": 328.07432513628567
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 728419584,
+              "tokensPerSecondCeiling": 90.05014368969051
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "openai-community/gpt2-medium",
+      "revision": "6dcaa7a952f72f9298047fd5137cd6e4f05f41da",
+      "configSource": "https://huggingface.co/openai-community/gpt2-medium/raw/main/config.json",
+      "parameterSource": "https://huggingface.co/api/models/openai-community/gpt2-medium",
+      "parameters": 354823168,
+      "safetensorsElements": 379988992,
+      "maskElements": 25165824,
+      "layers": 24,
+      "kvHeads": 16,
+      "headDim": 64,
+      "maxPositionEmbeddings": 1024,
+      "tieWordEmbeddings": true,
+      "nInner": 4096,
+      "nInnerInConfig": null,
+      "dtypes": [
+        {
+          "dtype": "float16",
+          "bytesPerElement": 2,
+          "kvBytesPerToken": 98304,
+          "weightBytes": 709646336,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 709744640,
+              "tokensPerSecondCeiling": 92.41956121793972
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 722229248,
+              "tokensPerSecondCeiling": 90.8219770761549
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 810309632,
+              "tokensPerSecondCeiling": 80.94965876647088
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 1112299520,
+              "tokensPerSecondCeiling": 58.97178505083288
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 3930871808,
+              "tokensPerSecondCeiling": 16.68695684048738
+            }
+          ]
+        },
+        {
+          "dtype": "bfloat16",
+          "bytesPerElement": 2,
+          "kvBytesPerToken": 98304,
+          "weightBytes": 709646336,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 709744640,
+              "tokensPerSecondCeiling": 92.41956121793972
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 722229248,
+              "tokensPerSecondCeiling": 90.8219770761549
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 810309632,
+              "tokensPerSecondCeiling": 80.94965876647088
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 1112299520,
+              "tokensPerSecondCeiling": 58.97178505083288
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 3930871808,
+              "tokensPerSecondCeiling": 16.68695684048738
+            }
+          ]
+        },
+        {
+          "dtype": "float32",
+          "bytesPerElement": 4,
+          "kvBytesPerToken": 196608,
+          "weightBytes": 1419292672,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 1419489280,
+              "tokensPerSecondCeiling": 46.20978060896986
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 1444458496,
+              "tokensPerSecondCeiling": 45.41098853807745
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 1620619264,
+              "tokensPerSecondCeiling": 40.47482938323544
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 2224599040,
+              "tokensPerSecondCeiling": 29.48589252541644
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 7861743616,
+              "tokensPerSecondCeiling": 8.34347842024369
+            }
+          ]
+        },
+        {
+          "dtype": "int8",
+          "bytesPerElement": 1,
+          "kvBytesPerToken": 49152,
+          "weightBytes": 354823168,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 354872320,
+              "tokensPerSecondCeiling": 184.83912243587943
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 361114624,
+              "tokensPerSecondCeiling": 181.6439541523098
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 405154816,
+              "tokensPerSecondCeiling": 161.89931753294175
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 556149760,
+              "tokensPerSecondCeiling": 117.94357010166576
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 1965435904,
+              "tokensPerSecondCeiling": 33.37391368097476
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Qwen/Qwen2.5-0.5B",
+      "revision": "060db6499f32faf8b98477b0a26969ef7d8b9987",
+      "configSource": "https://huggingface.co/Qwen/Qwen2.5-0.5B/raw/main/config.json",
+      "parameterSource": "https://huggingface.co/api/models/Qwen/Qwen2.5-0.5B",
+      "parameters": 494032768,
+      "safetensorsElements": 494032768,
+      "layers": 24,
+      "kvHeads": 2,
+      "headDim": 64,
+      "maxPositionEmbeddings": 32768,
+      "tieWordEmbeddings": true,
+      "dtypes": [
+        {
+          "dtype": "float16",
+          "bytesPerElement": 2,
+          "kvBytesPerToken": 12288,
+          "weightBytes": 988065536,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 988077824,
+              "tokensPerSecondCeiling": 66.3857508106412
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 989638400,
+              "tokensPerSecondCeiling": 66.28106610008724
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 1000648448,
+              "tokensPerSecondCeiling": 65.55178128411447
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 1038397184,
+              "tokensPerSecondCeiling": 63.1687847543167
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 1390718720,
+              "tokensPerSecondCeiling": 47.16574765426655
+            }
+          ]
+        },
+        {
+          "dtype": "bfloat16",
+          "bytesPerElement": 2,
+          "kvBytesPerToken": 12288,
+          "weightBytes": 988065536,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 988077824,
+              "tokensPerSecondCeiling": 66.3857508106412
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 989638400,
+              "tokensPerSecondCeiling": 66.28106610008724
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 1000648448,
+              "tokensPerSecondCeiling": 65.55178128411447
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 1038397184,
+              "tokensPerSecondCeiling": 63.1687847543167
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 1390718720,
+              "tokensPerSecondCeiling": 47.16574765426655
+            }
+          ]
+        },
+        {
+          "dtype": "float32",
+          "bytesPerElement": 4,
+          "kvBytesPerToken": 24576,
+          "weightBytes": 1976131072,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 1976155648,
+              "tokensPerSecondCeiling": 33.1928754053206
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 1979276800,
+              "tokensPerSecondCeiling": 33.14053305004362
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 2001296896,
+              "tokensPerSecondCeiling": 32.775890642057234
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 2076794368,
+              "tokensPerSecondCeiling": 31.58439237715835
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 2781437440,
+              "tokensPerSecondCeiling": 23.582873827133277
+            }
+          ]
+        },
+        {
+          "dtype": "int8",
+          "bytesPerElement": 1,
+          "kvBytesPerToken": 6144,
+          "weightBytes": 494032768,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 494038912,
+              "tokensPerSecondCeiling": 132.7715016212824
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 494819200,
+              "tokensPerSecondCeiling": 132.5621322001745
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 500324224,
+              "tokensPerSecondCeiling": 131.10356256822894
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 519198592,
+              "tokensPerSecondCeiling": 126.3375695086334
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 695359360,
+              "tokensPerSecondCeiling": 94.3314953085331
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Qwen/Qwen2.5-7B",
+      "revision": "d149729398750b98c0af14eb82c78cfe92750796",
+      "configSource": "https://huggingface.co/Qwen/Qwen2.5-7B/raw/main/config.json",
+      "parameterSource": "https://huggingface.co/api/models/Qwen/Qwen2.5-7B",
+      "parameters": 7615616512,
+      "safetensorsElements": 7615616512,
+      "layers": 28,
+      "kvHeads": 4,
+      "headDim": 128,
+      "maxPositionEmbeddings": 131072,
+      "tieWordEmbeddings": false,
+      "dtypes": [
+        {
+          "dtype": "float16",
+          "bytesPerElement": 2,
+          "kvBytesPerToken": 57344,
+          "weightBytes": 15231233024,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 15231290368,
+              "tokensPerSecondCeiling": 4.30654833705975
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 15238573056,
+              "tokensPerSecondCeiling": 4.304490188453547
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 15289953280,
+              "tokensPerSecondCeiling": 4.2900254176306145
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 15466114048,
+              "tokensPerSecondCeiling": 4.241161548531767
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 17110281216,
+              "tokensPerSecondCeiling": 3.833618359483577
+            },
+            {
+              "context": 131072,
+              "bytesPerToken": 22747425792,
+              "tokensPerSecondCeiling": 2.8835916997981075
+            }
+          ]
+        },
+        {
+          "dtype": "bfloat16",
+          "bytesPerElement": 2,
+          "kvBytesPerToken": 57344,
+          "weightBytes": 15231233024,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 15231290368,
+              "tokensPerSecondCeiling": 4.30654833705975
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 15238573056,
+              "tokensPerSecondCeiling": 4.304490188453547
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 15289953280,
+              "tokensPerSecondCeiling": 4.2900254176306145
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 15466114048,
+              "tokensPerSecondCeiling": 4.241161548531767
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 17110281216,
+              "tokensPerSecondCeiling": 3.833618359483577
+            },
+            {
+              "context": 131072,
+              "bytesPerToken": 22747425792,
+              "tokensPerSecondCeiling": 2.8835916997981075
+            }
+          ]
+        },
+        {
+          "dtype": "float32",
+          "bytesPerElement": 4,
+          "kvBytesPerToken": 114688,
+          "weightBytes": 30462466048,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 30462580736,
+              "tokensPerSecondCeiling": 2.153274168529875
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 30477146112,
+              "tokensPerSecondCeiling": 2.1522450942267737
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 30579906560,
+              "tokensPerSecondCeiling": 2.1450127088153073
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 30932228096,
+              "tokensPerSecondCeiling": 2.1205807742658833
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 34220562432,
+              "tokensPerSecondCeiling": 1.9168091797417885
+            },
+            {
+              "context": 131072,
+              "bytesPerToken": 45494851584,
+              "tokensPerSecondCeiling": 1.4417958498990537
+            }
+          ]
+        },
+        {
+          "dtype": "int8",
+          "bytesPerElement": 1,
+          "kvBytesPerToken": 28672,
+          "weightBytes": 7615616512,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 7615645184,
+              "tokensPerSecondCeiling": 8.6130966741195
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 7619286528,
+              "tokensPerSecondCeiling": 8.608980376907095
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 7644976640,
+              "tokensPerSecondCeiling": 8.580050835261229
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 7733057024,
+              "tokensPerSecondCeiling": 8.482323097063533
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 8555140608,
+              "tokensPerSecondCeiling": 7.667236718967154
+            },
+            {
+              "context": 131072,
+              "bytesPerToken": 11373712896,
+              "tokensPerSecondCeiling": 5.767183399596215
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Qwen/Qwen2.5-72B",
+      "revision": "efba10c8e54e91e0d9570ab5f7b51a958474d4cb",
+      "configSource": "https://huggingface.co/Qwen/Qwen2.5-72B/raw/main/config.json",
+      "parameterSource": "https://huggingface.co/api/models/Qwen/Qwen2.5-72B",
+      "parameters": 72706203648,
+      "safetensorsElements": 72706203648,
+      "layers": 80,
+      "kvHeads": 8,
+      "headDim": 128,
+      "maxPositionEmbeddings": 131072,
+      "tieWordEmbeddings": false,
+      "dtypes": [
+        {
+          "dtype": "float16",
+          "bytesPerElement": 2,
+          "kvBytesPerToken": 327680,
+          "weightBytes": 145412407296,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 145412734976,
+              "tokensPerSecondCeiling": 0.4510903960125003
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 145454350336,
+              "tokensPerSecondCeiling": 0.4509613363509691
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 145747951616,
+              "tokensPerSecondCeiling": 0.45005289939446214
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 146754584576,
+              "tokensPerSecondCeiling": 0.4469658538784196
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 156149825536,
+              "tokensPerSecondCeiling": 0.4200727601226936
+            },
+            {
+              "context": 131072,
+              "bytesPerToken": 188362080256,
+              "tokensPerSecondCeiling": 0.3482351018657067
+            }
+          ]
+        },
+        {
+          "dtype": "bfloat16",
+          "bytesPerElement": 2,
+          "kvBytesPerToken": 327680,
+          "weightBytes": 145412407296,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 145412734976,
+              "tokensPerSecondCeiling": 0.4510903960125003
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 145454350336,
+              "tokensPerSecondCeiling": 0.4509613363509691
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 145747951616,
+              "tokensPerSecondCeiling": 0.45005289939446214
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 146754584576,
+              "tokensPerSecondCeiling": 0.4469658538784196
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 156149825536,
+              "tokensPerSecondCeiling": 0.4200727601226936
+            },
+            {
+              "context": 131072,
+              "bytesPerToken": 188362080256,
+              "tokensPerSecondCeiling": 0.3482351018657067
+            }
+          ]
+        },
+        {
+          "dtype": "float32",
+          "bytesPerElement": 4,
+          "kvBytesPerToken": 655360,
+          "weightBytes": 290824814592,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 290825469952,
+              "tokensPerSecondCeiling": 0.22554519800625014
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 290908700672,
+              "tokensPerSecondCeiling": 0.22548066817548454
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 291495903232,
+              "tokensPerSecondCeiling": 0.22502644969723107
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 293509169152,
+              "tokensPerSecondCeiling": 0.2234829269392098
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 312299651072,
+              "tokensPerSecondCeiling": 0.2100363800613468
+            },
+            {
+              "context": 131072,
+              "bytesPerToken": 376724160512,
+              "tokensPerSecondCeiling": 0.17411755093285336
+            }
+          ]
+        },
+        {
+          "dtype": "int8",
+          "bytesPerElement": 1,
+          "kvBytesPerToken": 163840,
+          "weightBytes": 72706203648,
+          "contexts": [
+            {
+              "context": 1,
+              "bytesPerToken": 72706367488,
+              "tokensPerSecondCeiling": 0.9021807920250006
+            },
+            {
+              "context": 128,
+              "bytesPerToken": 72727175168,
+              "tokensPerSecondCeiling": 0.9019226727019382
+            },
+            {
+              "context": 1024,
+              "bytesPerToken": 72873975808,
+              "tokensPerSecondCeiling": 0.9001057987889243
+            },
+            {
+              "context": 4096,
+              "bytesPerToken": 73377292288,
+              "tokensPerSecondCeiling": 0.8939317077568392
+            },
+            {
+              "context": 32768,
+              "bytesPerToken": 78074912768,
+              "tokensPerSecondCeiling": 0.8401455202453872
+            },
+            {
+              "context": 131072,
+              "bytesPerToken": 94181040128,
+              "tokensPerSecondCeiling": 0.6964702037314134
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "speculative": {
+    "source": "https://arxiv.org/abs/2211.17192",
+    "measured": false,
+    "note": "Expected tokens from one target-model step when each draft token is accepted with the given probability and drafting is free. Upper bound from the paper, not a run on this machine.",
+    "rows": [
+      {
+        "acceptance": 0.6,
+        "draftTokens": 1,
+        "expectedTokensPerStep": 1.5999999999999999
+      },
+      {
+        "acceptance": 0.6,
+        "draftTokens": 2,
+        "expectedTokensPerStep": 1.96
+      },
+      {
+        "acceptance": 0.6,
+        "draftTokens": 4,
+        "expectedTokensPerStep": 2.3056
+      },
+      {
+        "acceptance": 0.6,
+        "draftTokens": 8,
+        "expectedTokensPerStep": 2.4748057599999997
+      },
+      {
+        "acceptance": 0.8,
+        "draftTokens": 1,
+        "expectedTokensPerStep": 1.7999999999999998
+      },
+      {
+        "acceptance": 0.8,
+        "draftTokens": 2,
+        "expectedTokensPerStep": 2.44
+      },
+      {
+        "acceptance": 0.8,
+        "draftTokens": 4,
+        "expectedTokensPerStep": 3.3616
+      },
+      {
+        "acceptance": 0.8,
+        "draftTokens": 8,
+        "expectedTokensPerStep": 4.32891136
+      },
+      {
+        "acceptance": 0.9,
+        "draftTokens": 1,
+        "expectedTokensPerStep": 1.9
+      },
+      {
+        "acceptance": 0.9,
+        "draftTokens": 2,
+        "expectedTokensPerStep": 2.7099999999999995
+      },
+      {
+        "acceptance": 0.9,
+        "draftTokens": 4,
+        "expectedTokensPerStep": 4.0951
+      },
+      {
+        "acceptance": 0.9,
+        "draftTokens": 8,
+        "expectedTokensPerStep": 6.12579511
+      }
+    ]
+  },
+  "quick": false
+}

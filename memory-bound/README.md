@@ -32,12 +32,70 @@ Pieces, if you want them one at a time: `probe`, `roofline`, `decode`, `kv`, `sp
 
 Every JSON file has `version`, `gitCommit`, and `quick`. `quick` is false on the committed run. Timings move if you rerun. The FLOP and byte counts do not.
 
+## Results
+
+Committed `out/` is one full run on the guest that wrote `out/machine.json`: a 4-core Intel Xeon, 335544320 bytes of L3, 16791945216 bytes of RAM. Rates below are SI (1 GB/s = 1e9 bytes/s). The same tables are in `out/report.md`.
+
+| Kernel | Best GB/s | Median GB/s |
+| --- | --- | --- |
+| float64 copy | 61.397 | 60.427 |
+| float64 triad | 65.594 | 54.216 |
+| float32 triad | 65.913 | 64.281 |
+
+The ceiling used everywhere below is the best float64 triad, 65.594 GB/s. The median of those repeats was 54.216 GB/s, so the best call is a noisy peak.
+
+| Square gemm | Best GFLOP/s | Median GFLOP/s |
+| --- | --- | --- |
+| float32, n = 4096 | 860.800 | 849.963 |
+| bfloat16, n = 4096 | 4805.891 | 3452.043 |
+
+Ridge intensity from the float32 peak and the triad is 13.123 FLOP/byte. The analytical crossing for the 3584 × 65024 layer is 26.451 tokens. The first measured point at or above 80% of that float32 peak is 512 tokens.
+
+| Tokens | FLOP/byte | GFLOP/s | Traffic GB/s |
+| --- | --- | --- | --- |
+| 1 | 0.500 | 22.814 | 45.641 |
+| 32 | 15.851 | 362.661 | 22.880 |
+| 512 | 222.467 | 758.988 | 3.412 |
+| 1024 | 393.404 | 795.507 | 2.022 |
+
+One token is 0.5 FLOP/byte, as the arithmetic says for float32. Its traffic on this run was 45.641 GB/s, under the best triad. From there, achieved FLOP/s climbs toward the float32 gemm.
+
+Qwen2.5-0.5B, batch 1, 128 prompt tokens, 32 new tokens. Decode does not include the prefill.
+
+| Dtype | Decode tokens/s | Weight ceiling | Ratio | Prefill tokens/s |
+| --- | --- | --- | --- | --- |
+| bfloat16 | 23.825 | 66.387 | 0.359 | 1563.818 |
+| float32 | 23.331 | 33.193 | 0.703 | 505.482 |
+| int8 | 51.424 | 132.715 | 0.387 | 947.482 |
+
+bfloat16 decode did not pull ahead of float32. Prefill did, and so did the square bfloat16 gemm. int8 decode is a bit more than twice float32, while the ceiling bytes dropped from 1976131072 to 494247424. It is still well under that ceiling. Adding the KV cache at the mean context (143.5 tokens) barely moves the ceilings: 66.268, 33.134, and 131.775 tokens/s.
+
+| Dtype | Batch 1 | Batch 2 | Batch 4 | Batch 8 |
+| --- | --- | --- | --- | --- |
+| bfloat16 | 23.825 | 48.238 | 88.025 | 171.610 |
+| float32 | 23.331 | 42.414 | 51.801 | 89.760 |
+| int8 | 51.424 | 90.606 | 149.626 | 249.913 |
+
+Those are total tokens/s across the batch.
+
+In float16, Qwen2.5-0.5B's KV cache is 12288 bytes/token. On this bandwidth the weight-only ceiling is 66.386 tokens/s at context 1 and 47.166 at context 32768. Qwen2.5-7B is 4.307 tokens/s at context 1 and 2.884 at context 131072. The other models and dtypes are in `out/kv_cache.json`.
+
+| Chip | Memory | Bandwidth | Dense FP16 | FLOP/byte |
+| --- | --- | --- | --- | --- |
+| NVIDIA H100 SXM | 80GB | 3.35 TB/s | 989.5 TFLOP/s | 295.373 |
+| NVIDIA A100 80GB SXM | 80GB HBM2e | 2039 GB/s | 312 TFLOP/s | 153.016 |
+| NVIDIA GeForce RTX 4090 | 24 GB GDDR6X | 1008 GB/s | 330.3 TFLOP/s | 327.679 |
+
+H100 989.5 is 1979/2. The datasheet's rounded dense figure is 1000 TFLOP/s at 3 TB/s. RTX 4090 is the FP16-accumulate tensor number. Apple M2 Ultra is omitted: the newsroom post gives 800 GB/s and up to 192 GB, and no dense 16-bit FLOP/s.
+
 ## How this maps to the essay
 
 - Two FLOPs per weight, and one FLOP per byte at batch 1 in 16-bit: `tests/test_arithmetic.py`
 - KV bytes and the context-length ceiling: `tests/test_kv.py`
 - Parameter counts match the published safetensors totals: `tests/test_models.py`
 - Chip figures match the cited sheets, dense rate with sparsity halved where the vendor says so: `tests/test_specs.py`
+- A tied embedding is counted once, and the int8 ceiling skips the leftover fp32 table: `tests/test_weights.py`
+- Committed files agree with those formulas: `tests/test_outputs.py`
 
 ## Notes
 
@@ -45,7 +103,7 @@ Every JSON file has `version`, `gitCommit`, and `quick`. `quick` is false on the
 - Peak FLOP/s is the best square `float32` gemm.
 - The roofline matrix has the same weight count and the same multiply-adds as one Qwen2.5-7B layer of q, k, v, o, and MLP projections. It leaves out the small norm and bias tensors, and it is not the attention score math.
 - Decode times new tokens only. The prompt forward is a separate prefill measurement.
-- The token ceiling is bandwidth divided by bytes. The bytes are unique stored parameters, then those plus KV at the mean context during the decode.
+- The token ceiling is bandwidth divided by bytes. Those bytes are the matmul weights, the biases, and the norms. On this tied model the output projection is the embedding matrix, so that matrix is in the count. int8 leaves the fp32 embedding in memory and packs a second copy. The ceiling uses the packed copy.
 - int8 is `torch.ao.quantization.quantize_dynamic` on `nn.Linear`. If that does not pack the linears, the file says so and there is no speed claim.
 - Speculative rows use the expectation from Leviathan et al. if each draft token is accepted with a fixed probability and drafting is free. They are not a measurement on this machine.
 - Apple M2 Ultra is listed under `omitted` because the newsroom post gives bandwidth and memory and does not give dense 16-bit FLOP/s.

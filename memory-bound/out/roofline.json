@@ -1,0 +1,221 @@
+{
+  "version": 1,
+  "gitCommit": "b1c888febd2184f3a2152b9878e2d2638e704128",
+  "quick": false,
+  "matrix": {
+    "model": "Qwen/Qwen2.5-7B",
+    "revision": "d149729398750b98c0af14eb82c78cfe92750796",
+    "configSource": "https://huggingface.co/Qwen/Qwen2.5-7B/raw/main/config.json",
+    "description": "Projections from one transformer layer, stacked as one matrix with the same weight count and the same multiply-adds. RMSNorm weights and q, k, v biases are not in the matrix.",
+    "rows": 3584,
+    "cols": 65024,
+    "dtype": "float32",
+    "bytesPerElement": 4,
+    "weightElements": 233046016,
+    "excludedBiasElements": 4608,
+    "excludedNormElements": 7168
+  },
+  "perWeight": [
+    {
+      "dtype": "float32",
+      "bytesPerWeight": 4,
+      "flopsPerWeight": 2,
+      "flopsPerByteAtBatch1": 0.5
+    },
+    {
+      "dtype": "float16",
+      "bytesPerWeight": 2,
+      "flopsPerWeight": 2,
+      "flopsPerByteAtBatch1": 1.0
+    },
+    {
+      "dtype": "bfloat16",
+      "bytesPerWeight": 2,
+      "flopsPerWeight": 2,
+      "flopsPerByteAtBatch1": 1.0
+    },
+    {
+      "dtype": "int8",
+      "bytesPerWeight": 1,
+      "flopsPerWeight": 2,
+      "flopsPerByteAtBatch1": 2.0
+    }
+  ],
+  "ceilings": {
+    "bandwidthBytesPerSecond": 65594288205.58459,
+    "bandwidthKernel": "float64 triad, best of the timed calls",
+    "peakFlopsPerSecond": 860799572722.8146,
+    "peakKernel": "float32 square gemm, best of the timed calls",
+    "ridgeArithmeticIntensity": 13.12308733383782,
+    "analyticalRidgeTokens": 26.45055252397154,
+    "measuredRidgeTokens": 512,
+    "measuredRidgeFractionOfPeak": 0.8
+  },
+  "points": [
+    {
+      "tokens": 1,
+      "flops": 466092032,
+      "bytes": 932458496,
+      "arithmeticIntensity": 0.499852844924907,
+      "seconds": [
+        0.020679753000194978,
+        0.020121557000038592,
+        0.0204303410000648
+      ],
+      "medianSeconds": 0.0204303410000648,
+      "bestSeconds": 0.020121557000038592,
+      "achievedFlopsPerSecond": 22813717695.584312,
+      "trafficBytesPerSecond": 45640867961.8731
+    },
+    {
+      "tokens": 2,
+      "flops": 932184064,
+      "bytes": 932732928,
+      "arithmeticIntensity": 0.9994115528855866,
+      "seconds": [
+        0.031010771000183013,
+        0.029944999000008465,
+        0.029764246000013372
+      ],
+      "medianSeconds": 0.029944999000008465,
+      "bestSeconds": 0.029764246000013372,
+      "achievedFlopsPerSecond": 31129874607.767944,
+      "trafficBytesPerSecond": 31148203678.341625
+    },
+    {
+      "tokens": 4,
+      "flops": 1864368128,
+      "bytes": 933281792,
+      "arithmeticIntensity": 1.997647595807805,
+      "seconds": [
+        0.030505058000017016,
+        0.02856452400010312,
+        0.0301823400000103
+      ],
+      "medianSeconds": 0.0301823400000103,
+      "bestSeconds": 0.02856452400010312,
+      "achievedFlopsPerSecond": 61770165202.544395,
+      "trafficBytesPerSecond": 30921452478.49178
+    },
+    {
+      "tokens": 8,
+      "flops": 3728736256,
+      "bytes": 934379520,
+      "arithmeticIntensity": 3.9906014378397336,
+      "seconds": [
+        0.03182265599980383,
+        0.029183386000113387,
+        0.028507960999831994
+      ],
+      "medianSeconds": 0.029183386000113387,
+      "bestSeconds": 0.028507960999831994,
+      "achievedFlopsPerSecond": 127769144265.35402,
+      "trafficBytesPerSecond": 32017515719.26471
+    },
+    {
+      "tokens": 16,
+      "flops": 7457472512,
+      "bytes": 936574976,
+      "arithmeticIntensity": 7.962493877265412,
+      "seconds": [
+        0.03350033400010943,
+        0.03344189200015535,
+        0.03325652400008039
+      ],
+      "medianSeconds": 0.03344189200015535,
+      "bestSeconds": 0.03325652400008039,
+      "achievedFlopsPerSecond": 222997924637.91693,
+      "trafficBytesPerSecond": 28006040327.970955
+    },
+    {
+      "tokens": 32,
+      "flops": 14914945024,
+      "bytes": 940965888,
+      "arithmeticIntensity": 15.85067558155732,
+      "seconds": [
+        0.04098229999999603,
+        0.04121453700008715,
+        0.041126466000150685
+      ],
+      "medianSeconds": 0.041126466000150685,
+      "bestSeconds": 0.04098229999999603,
+      "achievedFlopsPerSecond": 362660507322.5925,
+      "trafficBytesPerSecond": 22879813889.10373
+    },
+    {
+      "tokens": 64,
+      "flops": 29829890048,
+      "bytes": 949747712,
+      "arithmeticIntensity": 31.408225227711842,
+      "seconds": [
+        0.06440775400005805,
+        0.06335793900007047,
+        0.062566403999881
+      ],
+      "medianSeconds": 0.06335793900007047,
+      "bestSeconds": 0.062566403999881,
+      "achievedFlopsPerSecond": 470815347196.9285,
+      "trafficBytesPerSecond": 14990192657.607496
+    },
+    {
+      "tokens": 128,
+      "flops": 59659780096,
+      "bytes": 967311360,
+      "arithmeticIntensity": 61.67588075880759,
+      "seconds": [
+        0.10100761199987573,
+        0.10531756000000314,
+        0.1006642140000622
+      ],
+      "medianSeconds": 0.10100761199987573,
+      "bestSeconds": 0.1006642140000622,
+      "achievedFlopsPerSecond": 590646377186.6361,
+      "trafficBytesPerSecond": 9576618443.382168
+    },
+    {
+      "tokens": 256,
+      "flops": 119319560192,
+      "bytes": 1002438656,
+      "arithmeticIntensity": 119.02928870292887,
+      "seconds": [
+        0.2401799370002209,
+        0.23097204600003352,
+        0.21120796499985772
+      ],
+      "medianSeconds": 0.23097204600003352,
+      "bestSeconds": 0.21120796499985772,
+      "achievedFlopsPerSecond": 516597407601.3627,
+      "trafficBytesPerSecond": 4340086488.214485
+    },
+    {
+      "tokens": 512,
+      "flops": 238639120384,
+      "bytes": 1072693248,
+      "arithmeticIntensity": 222.4672531769306,
+      "seconds": [
+        0.3144176199998583,
+        0.3153987649998271,
+        0.31352296499994736
+      ],
+      "medianSeconds": 0.3144176199998583,
+      "bestSeconds": 0.31352296499994736,
+      "achievedFlopsPerSecond": 758987744974.6854,
+      "trafficBytesPerSecond": 3411682996.6478453
+    },
+    {
+      "tokens": 1024,
+      "flops": 477278240768,
+      "bytes": 1213202432,
+      "arithmeticIntensity": 393.4036300777874,
+      "seconds": [
+        0.5999677019999581,
+        0.5822357799997917,
+        0.6182658160000756
+      ],
+      "medianSeconds": 0.5999677019999581,
+      "bestSeconds": 0.5822357799997917,
+      "achievedFlopsPerSecond": 795506556731.3378,
+      "trafficBytesPerSecond": 2022112903.6710792
+    }
+  ]
+}

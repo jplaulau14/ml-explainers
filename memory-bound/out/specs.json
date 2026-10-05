@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "bytesNote": "Bandwidth is converted with SI units: 1 GB/s = 1e9 bytes/s and 1 TB/s = 1e12 bytes/s. Memory capacity is the vendor's string.",
+  "chips": [
+    {
+      "name": "NVIDIA H100 SXM",
+      "memory": "80GB",
+      "bandwidthLabel": "3.35TB/s",
+      "bandwidthBytesPerSecond": 3350000000000.0,
+      "denseFp16Tflops": 989.5,
+      "denseFp16FlopsPerSecond": 989500000000000.0,
+      "ridgeFlopsPerByte": 295.3731343283582,
+      "sources": [
+        {
+          "field": "memory, bandwidth, fp16TensorTflopsWithSparsity",
+          "url": "https://www.nvidia.com/en-us/data-center/h100/"
+        },
+        {
+          "field": "sparsity is twice the dense rate",
+          "url": "https://resources.nvidia.com/en-us-data-center-overview/nvidia-tensor-core-gpu-datasheet"
+        }
+      ],
+      "fp16TensorTflopsWithSparsity": 1979,
+      "denseFp16Derivation": "1979 / 2",
+      "sparsityNote": "The H100 product page lists 1,979 teraFLOPS of FP16 tensor core for H100 SXM with the footnote 'With sparsity'. The H100 datasheet says specifications shown with sparsity are 1/2 lower without sparsity.",
+      "datasheet": {
+        "source": "https://resources.nvidia.com/en-us-data-center-overview/nvidia-tensor-core-gpu-datasheet",
+        "fp16TensorTflopsWithSparsity": 2000,
+        "denseFp16Tflops": 1000,
+        "bandwidthLabel": "3TB/s",
+        "memory": "80GB"
+      }
+    },
+    {
+      "name": "NVIDIA A100 80GB SXM",
+      "memory": "80GB HBM2e",
+      "bandwidthLabel": "2039GB/s",
+      "bandwidthBytesPerSecond": 2039000000000,
+      "denseFp16Tflops": 312,
+      "denseFp16FlopsPerSecond": 312000000000000,
+      "ridgeFlopsPerByte": 153.01618440411966,
+      "sources": [
+        {
+          "field": "memory, bandwidth, fp16 tensor core",
+          "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
+        }
+      ],
+      "fp16TensorTflopsWithSparsity": 624,
+      "sparsityNote": "The datasheet lists FP16 Tensor Core as 312 TFLOPS | 624 TFLOPS*. The footnote says the starred number is with sparsity."
+    },
+    {
+      "name": "NVIDIA GeForce RTX 4090",
+      "memory": "24 GB GDDR6X",
+      "bandwidthLabel": "1008 GB/sec",
+      "bandwidthBytesPerSecond": 1008000000000,
+      "denseFp16Tflops": 330.3,
+      "denseFp16FlopsPerSecond": 330300000000000.0,
+      "ridgeFlopsPerByte": 327.67857142857144,
+      "sources": [
+        {
+          "field": "memory, bandwidth, fp16 tensor core",
+          "url": "https://images.nvidia.com/aem-dam/Solutions/geforce/ada/nvidia-ada-gpu-architecture.pdf"
+        }
+      ],
+      "fp16TensorTflopsWithSparsity": 660.6,
+      "accumulate": "FP16",
+      "denseFp16Fp32AccumulateTflops": 165.2,
+      "fp16Fp32AccumulateTflopsWithSparsity": 330.4,
+      "sparsityNote": "Appendix A lists Peak FP16 Tensor TFLOPS with FP16 Accumulate as 330.3/660.6. Footnote 2 says the second number uses the sparsity feature. The same table lists FP32-accumulate FP16 tensor core as 165.2/330.4."
+    }
+  ],
+  "omitted": [
+    {
+      "name": "Apple M2 Ultra",
+      "memory": "up to 192GB",
+      "bandwidthLabel": "800GB/s",
+      "source": "https://www.apple.com/newsroom/2023/06/apple-introduces-m2-ultra/",
+      "reason": "Apple's newsroom post lists 800GB/s of memory bandwidth and up to 192GB of unified memory. It does not publish dense 16-bit FLOP/s."
+    }
+  ],
+  "gitCommit": "b1c888febd2184f3a2152b9878e2d2638e704128",
+  "quick": false
+}

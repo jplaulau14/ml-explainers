@@ -1,0 +1,176 @@
+{
+  "version": 1,
+  "gitCommit": "b1c888febd2184f3a2152b9878e2d2638e704128",
+  "quick": false,
+  "cpu": {
+    "model": "Intel(R) Xeon(R) Processor",
+    "vendor": "GenuineIntel",
+    "family": 6,
+    "modelId": 207,
+    "stepping": 2,
+    "cores": 4,
+    "flags": [
+      "avx2",
+      "avx512f",
+      "avx512_bf16",
+      "amx_bf16"
+    ],
+    "caches": [
+      {
+        "level": 1,
+        "bytes": 49152,
+        "shared": "0",
+        "type": "Data"
+      },
+      {
+        "level": 1,
+        "bytes": 32768,
+        "shared": "0",
+        "type": "Instruction"
+      },
+      {
+        "level": 2,
+        "bytes": 2097152,
+        "shared": "0",
+        "type": "Unified"
+      },
+      {
+        "level": 3,
+        "bytes": 335544320,
+        "shared": "0-3",
+        "type": "Unified"
+      }
+    ],
+    "l3Bytes": 335544320,
+    "uname": {
+      "system": "Linux",
+      "release": "6.12.94+",
+      "machine": "x86_64"
+    }
+  },
+  "memory": {
+    "totalBytes": 16791945216,
+    "availableBytes": 9252442112
+  },
+  "libraries": {
+    "numpy": "2.4.6",
+    "torch": "2.14.1+cpu",
+    "transformers": "5.18.0",
+    "python": "3.11.17"
+  },
+  "threads": 4,
+  "streams": [
+    {
+      "kernel": "copy",
+      "dtype": "float64",
+      "elements": 55924053,
+      "arrayBytes": 447392424,
+      "workingSetBytes": 894784848,
+      "bytesPerCall": 894784848,
+      "repeats": 10,
+      "seconds": [
+        0.015010484999947948,
+        0.014829509000037433,
+        0.014711158999944018,
+        0.014785862000053385,
+        0.014699543999995512,
+        0.014660037000112425,
+        0.0145738319999964,
+        0.018943275999845355,
+        0.016769729000088773,
+        0.01641046700001425
+      ],
+      "medianSeconds": 0.014807685500045409,
+      "bestSeconds": 0.0145738319999964,
+      "medianBytesPerSecond": 60427056476.669235,
+      "bestBytesPerSecond": 61396676454.08709,
+      "exceedsL3": true
+    },
+    {
+      "kernel": "triad",
+      "dtype": "float64",
+      "elements": 55924053,
+      "arrayBytes": 447392424,
+      "workingSetBytes": 1342177272,
+      "bytesPerCall": 1342177272,
+      "repeats": 10,
+      "seconds": [
+        0.020461801000010382,
+        0.020873355000048832,
+        0.020868267999958334,
+        0.020866181999963374,
+        0.021841063000010763,
+        0.030119948999981716,
+        0.0289904009998736,
+        0.027824925999993866,
+        0.02794195100000252,
+        0.027671472000065478
+      ],
+      "medianSeconds": 0.02475626750003812,
+      "bestSeconds": 0.020461801000010382,
+      "medianBytesPerSecond": 54215655570.773476,
+      "bestBytesPerSecond": 65594288205.58459,
+      "exceedsL3": true
+    },
+    {
+      "kernel": "triad",
+      "dtype": "float32",
+      "elements": 111848106,
+      "arrayBytes": 447392424,
+      "workingSetBytes": 1342177272,
+      "bytesPerCall": 1342177272,
+      "repeats": 10,
+      "seconds": [
+        0.021286677000034615,
+        0.021280304000129036,
+        0.02106310699991809,
+        0.021014460000060353,
+        0.020756410000103642,
+        0.021001360000127534,
+        0.020758487999955832,
+        0.020628746000056708,
+        0.020495541999935085,
+        0.02036278300010963
+      ],
+      "medianSeconds": 0.020879924000041683,
+      "bestSeconds": 0.02036278300010963,
+      "medianBytesPerSecond": 64280754661.62236,
+      "bestBytesPerSecond": 65913253212.62688,
+      "exceedsL3": true
+    }
+  ],
+  "peaks": [
+    {
+      "dtype": "float32",
+      "n": 4096,
+      "status": "ok",
+      "flops": 137438953472,
+      "repeats": 3,
+      "seconds": [
+        0.15966429100012647,
+        0.1671763849999479,
+        0.16169988599995122
+      ],
+      "medianSeconds": 0.16169988599995122,
+      "bestSeconds": 0.15966429100012647,
+      "medianFlopsPerSecond": 849963205738.0762,
+      "bestFlopsPerSecond": 860799572722.8146
+    },
+    {
+      "dtype": "bfloat16",
+      "n": 4096,
+      "status": "ok",
+      "flops": 137438953472,
+      "repeats": 3,
+      "seconds": [
+        0.02859801900012826,
+        0.039813798000068346,
+        0.04854215000000295
+      ],
+      "medianSeconds": 0.039813798000068346,
+      "bestSeconds": 0.02859801900012826,
+      "medianFlopsPerSecond": 3452043270821.9414,
+      "bestFlopsPerSecond": 4805890697232.686
+    }
+  ]
+}

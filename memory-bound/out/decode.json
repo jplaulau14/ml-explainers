@@ -1,0 +1,178 @@
+{
+  "version": 1,
+  "gitCommit": "b1c888febd2184f3a2152b9878e2d2638e704128",
+  "quick": false,
+  "model": {
+    "id": "Qwen/Qwen2.5-0.5B",
+    "catalogRevision": "060db6499f32faf8b98477b0a26969ef7d8b9987",
+    "configSource": "https://huggingface.co/Qwen/Qwen2.5-0.5B/raw/main/config.json",
+    "parameterSource": "https://huggingface.co/api/models/Qwen/Qwen2.5-0.5B",
+    "publishedParameters": 494032768,
+    "layers": 24,
+    "kvHeads": 2,
+    "headDim": 64,
+    "prompt": "The capital of France is Paris."
+  },
+  "bandwidthBytesPerSecond": 65594288205.58459,
+  "l3Bytes": 335544320,
+  "promptTokens": 128,
+  "newTokens": 32,
+  "repeats": 2,
+  "threads": 4,
+  "bytesPerWeightReference": {
+    "float32": 4,
+    "bfloat16": 2,
+    "int8": 1
+  },
+  "precisions": [
+    {
+      "dtype": "bfloat16",
+      "status": "ok",
+      "uniqueParameters": 494032768,
+      "uniqueBytes": 988065536,
+      "linearBytes": 987922432,
+      "quantizedLinears": 0,
+      "prefillSecondsMedian": 0.08185096399995473,
+      "prefillTokensPerSecond": 1563.8178678026418,
+      "decodeSecondsMedian": 1.343107874999987,
+      "decodeTokensPerSecond": 23.825338675793493,
+      "measuredKvBytesPerToken": 12288,
+      "kvElementBytes": 2,
+      "formulaKvBytesPerToken": 12288,
+      "cacheFit": "larger",
+      "pace": "slower",
+      "predictedTokensPerSecondWeights": 66.38657641185512,
+      "predictedTokensPerSecondWeightsAndKv": 66.26831222168177,
+      "meanContext": 143.5,
+      "revision": "060db6499f32faf8b98477b0a26969ef7d8b9987"
+    },
+    {
+      "dtype": "float32",
+      "status": "ok",
+      "uniqueParameters": 494032768,
+      "uniqueBytes": 1976131072,
+      "linearBytes": 1975844864,
+      "quantizedLinears": 0,
+      "prefillSecondsMedian": 0.25322370849994513,
+      "prefillTokensPerSecond": 505.48189487568357,
+      "decodeSecondsMedian": 1.37157480150006,
+      "decodeTokensPerSecond": 23.33084565639609,
+      "measuredKvBytesPerToken": 24576,
+      "kvElementBytes": 4,
+      "formulaKvBytesPerToken": 24576,
+      "cacheFit": "larger",
+      "pace": "slower",
+      "predictedTokensPerSecondWeights": 33.19328820592756,
+      "predictedTokensPerSecondWeightsAndKv": 33.134156110840884,
+      "meanContext": 143.5,
+      "revision": "060db6499f32faf8b98477b0a26969ef7d8b9987"
+    },
+    {
+      "dtype": "int8",
+      "status": "ok",
+      "uniqueParameters": 494032768,
+      "uniqueBytes": 494247424,
+      "linearBytes": 494071808,
+      "quantizedLinears": 169,
+      "prefillSecondsMedian": 0.13509495049993347,
+      "prefillTokensPerSecond": 947.4817491425265,
+      "decodeSecondsMedian": 0.6222809910000251,
+      "decodeTokensPerSecond": 51.42371446792067,
+      "measuredKvBytesPerToken": 24576,
+      "kvElementBytes": 4,
+      "formulaKvBytesPerToken": 24576,
+      "cacheFit": "larger",
+      "pace": "slower",
+      "predictedTokensPerSecondWeights": 132.71548827654505,
+      "predictedTokensPerSecondWeightsAndKv": 131.77521860034292,
+      "meanContext": 143.5,
+      "revision": "060db6499f32faf8b98477b0a26969ef7d8b9987"
+    }
+  ],
+  "batch": [
+    {
+      "dtype": "bfloat16",
+      "batchSize": 1,
+      "decodeSecondsMedian": 1.343107874999987,
+      "totalTokensPerSecond": 23.825338675793493,
+      "perSequenceTokensPerSecond": 23.825338675793493
+    },
+    {
+      "dtype": "bfloat16",
+      "batchSize": 2,
+      "decodeSecondsMedian": 1.326760214500041,
+      "totalTokensPerSecond": 48.23780461650105,
+      "perSequenceTokensPerSecond": 24.118902308250526
+    },
+    {
+      "dtype": "bfloat16",
+      "batchSize": 4,
+      "decodeSecondsMedian": 1.454124451499979,
+      "totalTokensPerSecond": 88.0254780586102,
+      "perSequenceTokensPerSecond": 22.00636951465255
+    },
+    {
+      "dtype": "bfloat16",
+      "batchSize": 8,
+      "decodeSecondsMedian": 1.4917523299999402,
+      "totalTokensPerSecond": 171.61025650954423,
+      "perSequenceTokensPerSecond": 21.45128206369303
+    },
+    {
+      "dtype": "float32",
+      "batchSize": 1,
+      "decodeSecondsMedian": 1.37157480150006,
+      "totalTokensPerSecond": 23.33084565639609,
+      "perSequenceTokensPerSecond": 23.33084565639609
+    },
+    {
+      "dtype": "float32",
+      "batchSize": 2,
+      "decodeSecondsMedian": 1.5089199490000738,
+      "totalTokensPerSecond": 42.41444355110509,
+      "perSequenceTokensPerSecond": 21.207221775552544
+    },
+    {
+      "dtype": "float32",
+      "batchSize": 4,
+      "decodeSecondsMedian": 2.4709930295000504,
+      "totalTokensPerSecond": 51.801036454521245,
+      "perSequenceTokensPerSecond": 12.950259113630311
+    },
+    {
+      "dtype": "float32",
+      "batchSize": 8,
+      "decodeSecondsMedian": 2.852035598500038,
+      "totalTokensPerSecond": 89.76045044270741,
+      "perSequenceTokensPerSecond": 11.220056305338426
+    },
+    {
+      "dtype": "int8",
+      "batchSize": 1,
+      "decodeSecondsMedian": 0.6222809910000251,
+      "totalTokensPerSecond": 51.42371446792067,
+      "perSequenceTokensPerSecond": 51.42371446792067
+    },
+    {
+      "dtype": "int8",
+      "batchSize": 2,
+      "decodeSecondsMedian": 0.7063529885000435,
+      "totalTokensPerSecond": 90.6062564213191,
+      "perSequenceTokensPerSecond": 45.30312821065955
+    },
+    {
+      "dtype": "int8",
+      "batchSize": 4,
+      "decodeSecondsMedian": 0.8554667490001293,
+      "totalTokensPerSecond": 149.62592076151012,
+      "perSequenceTokensPerSecond": 37.40648019037753
+    },
+    {
+      "dtype": "int8",
+      "batchSize": 8,
+      "decodeSecondsMedian": 1.0243556200000512,
+      "totalTokensPerSecond": 249.91320885220233,
+      "perSequenceTokensPerSecond": 31.23915110652529
+    }
+  ]
+}
