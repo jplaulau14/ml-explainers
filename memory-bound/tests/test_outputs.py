@@ -22,10 +22,32 @@ def load(name: str) -> dict:
     return json.loads((OUT / name).read_text())
 
 
+def rev_parse(spec: str) -> str:
+    return subprocess.check_output(["git", "rev-parse", spec], cwd=REPO, text=True).strip()
+
+
+def parent_list(spec: str) -> list[str]:
+    text = subprocess.check_output(["git", "rev-parse", f"{spec}^@"], cwd=REPO, text=True)
+    return [line for line in text.splitlines() if line]
+
+
+def accepted_commits(head: str, head_parents: list[str], tip_parent: str | None) -> set[str]:
+    if len(head_parents) > 1:
+        found = {head, head_parents[1]}
+        if tip_parent is not None:
+            found.add(tip_parent)
+        return found
+    return {head, *head_parents}
+
+
 def history() -> set[str]:
-    head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPO, text=True).strip()
-    parent = subprocess.check_output(["git", "rev-parse", "HEAD^"], cwd=REPO, text=True).strip()
-    return {head, parent}
+    head = rev_parse("HEAD")
+    head_parents = parent_list(head)
+    tip_parent = None
+    if len(head_parents) > 1:
+        tip_parents = parent_list(head_parents[1])
+        tip_parent = tip_parents[0] if tip_parents else None
+    return accepted_commits(head, head_parents, tip_parent)
 
 
 def float64_triad(machine: dict) -> dict:
@@ -38,6 +60,16 @@ def float32_peak(machine: dict) -> dict:
     return next(
         row for row in machine["peaks"] if row["dtype"] == "float32" and row["status"] == "ok"
     )
+
+
+def test_linear_checkout_accepts_head_and_its_parent() -> None:
+    assert accepted_commits("data", ["measured"], None) == {"data", "measured"}
+
+
+def test_merge_checkout_uses_the_branch_tip() -> None:
+    accepted = accepted_commits("merge", ["base", "tip"], "measured")
+    assert accepted == {"merge", "tip", "measured"}
+    assert "base" not in accepted
 
 
 def test_committed_files_are_a_full_run() -> None:
