@@ -57,11 +57,12 @@ def kv_command(quick: bool) -> None:
     print(f"wrote {path.relative_to(ROOT)}", flush=True)
 
 
-def specs_command() -> None:
+def specs_command(quick: bool) -> None:
     from mb_explainer.specs import payload as specs_payload
 
     body = specs_payload()
     body["gitCommit"] = git_commit()
+    body["quick"] = quick
     path = write_json(OUT / "specs.json", body)
     print(f"wrote {path.relative_to(ROOT)}", flush=True)
 
@@ -84,7 +85,7 @@ def all_command(quick: bool) -> None:
     roofline_command(quick)
     decode_command(quick)
     kv_command(quick)
-    specs_command()
+    specs_command(quick)
     report_command()
 
 
@@ -114,7 +115,7 @@ def main(argv: list[str] | None = None) -> None:
     elif args.command == "kv":
         kv_command(args.quick)
     elif args.command == "specs":
-        specs_command()
+        specs_command(args.quick)
     elif args.command == "report":
         report_command()
     else:
