@@ -31,23 +31,33 @@ def parent_list(spec: str) -> list[str]:
     return [line for line in text.splitlines() if line]
 
 
-def accepted_commits(head: str, head_parents: list[str], tip_parent: str | None) -> set[str]:
+def branch_tip(head: str, head_parents: list[str]) -> str:
     if len(head_parents) > 1:
-        found = {head, head_parents[1]}
-        if tip_parent is not None:
-            found.add(tip_parent)
-        return found
-    return {head, *head_parents}
+        return head_parents[1]
+    return head
+
+
+def output_commit(tip: str) -> str:
+    return subprocess.check_output(
+        [
+            "git",
+            "log",
+            "-1",
+            "--diff-filter=A",
+            "--format=%H",
+            tip,
+            "--",
+            "memory-bound/out/machine.json",
+        ],
+        cwd=REPO,
+        text=True,
+    ).strip()
 
 
 def history() -> set[str]:
-    head = rev_parse("HEAD")
-    head_parents = parent_list(head)
-    tip_parent = None
-    if len(head_parents) > 1:
-        tip_parents = parent_list(head_parents[1])
-        tip_parent = tip_parents[0] if tip_parents else None
-    return accepted_commits(head, head_parents, tip_parent)
+    tip = branch_tip(rev_parse("HEAD"), parent_list("HEAD"))
+    added = output_commit(tip)
+    return {added, rev_parse(f"{added}^")}
 
 
 def float64_triad(machine: dict) -> dict:
@@ -62,14 +72,9 @@ def float32_peak(machine: dict) -> dict:
     )
 
 
-def test_linear_checkout_accepts_head_and_its_parent() -> None:
-    assert accepted_commits("data", ["measured"], None) == {"data", "measured"}
-
-
-def test_merge_checkout_uses_the_branch_tip() -> None:
-    accepted = accepted_commits("merge", ["base", "tip"], "measured")
-    assert accepted == {"merge", "tip", "measured"}
-    assert "base" not in accepted
+def test_merge_checkout_follows_the_branch_tip() -> None:
+    assert branch_tip("merge", ["base", "tip"]) == "tip"
+    assert branch_tip("data", ["measured"]) == "data"
 
 
 def test_committed_files_are_a_full_run() -> None:
