@@ -7,6 +7,7 @@ from pathlib import Path
 import modal
 
 import tiling_explainer
+from tiling_explainer.a10g.gather import gather
 from tiling_explainer.a10g.ncu import ncu_command
 from tiling_explainer.a10g.spec import SMI_QUERY, SmiReading, guarded
 
@@ -45,7 +46,7 @@ def call_facts(reading: SmiReading, commit: str) -> Call:
     software = {**bench.software_versions(), "modal": modal.__version__}
     return {
         "commit": commit,
-        "container": os.environ.get("MODAL_TASK_ID", "unknown"),
+        "container": container(),
         "gpuUuid": reading.uuid,
         "gpu": {**asdict(reading), **bench.device_facts()},
         "software": software,
@@ -74,18 +75,27 @@ def profile_on_a10g(reading: SmiReading, n: int, commit: str) -> Call:
     return {**facts, "ncu": version, "command": " ".join(command), "csv": done.stdout}
 
 
+def container() -> str:
+    return os.environ.get("MODAL_TASK_ID", "unknown")
+
+
 @app.function(gpu="A10G", timeout=CALL_TIMEOUT_SECONDS, single_use_containers=True)
 def timing_call(n: int, commit: str) -> Call:
-    return guarded(run_text(SMI_QUERY), lambda reading: time_on_a10g(reading, n, commit))
+    result = guarded(run_text(SMI_QUERY), lambda reading: time_on_a10g(reading, n, commit))
+    return {"container": container(), **result}
 
 
 @app.function(gpu="A10G", timeout=CALL_TIMEOUT_SECONDS, single_use_containers=True)
 def profile_call(n: int, commit: str) -> Call:
-    return guarded(run_text(SMI_QUERY), lambda reading: profile_on_a10g(reading, n, commit))
+    result = guarded(run_text(SMI_QUERY), lambda reading: profile_on_a10g(reading, n, commit))
+    return {"container": container(), **result}
 
 
-def run_calls(n: int, calls: int, commit: str) -> tuple[list[Call], Call]:
+def run_calls(n: int, calls: int, commit: str) -> tuple[list[Call], Call, list[Call]]:
+    starters = {
+        "timing": lambda: timing_call.spawn(n, commit),
+        "profile": lambda: profile_call.spawn(n, commit),
+    }
     with modal.enable_output(), app.run():
-        timings = [timing_call.spawn(n, commit) for _ in range(calls)]
-        profile = profile_call.spawn(n, commit)
-        return [timing.get() for timing in timings], profile.get()
+        accepted, refusals = gather(starters, {"timing": calls, "profile": 1})
+    return accepted["timing"], accepted["profile"][0], refusals

@@ -144,6 +144,7 @@ def write_a10g(
     n: int,
     calls: list[Call],
     profile: Call,
+    refusals: list[Call],
     launches: list[Launch],
     commit: str,
     publication: bool,
@@ -163,5 +164,6 @@ def write_a10g(
         "distinctGpus": distinct_gpus([*calls, profile]),
         "calls": [call_detail(call) for call in calls],
         "profile": profile_detail(profile, launches, measured),
+        "refusals": refusals,
     }
     write_json(folder / "a10g-runs.json", sidecar)

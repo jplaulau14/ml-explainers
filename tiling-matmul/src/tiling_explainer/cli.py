@@ -3,7 +3,6 @@ import json
 import platform
 import sys
 
-from tiling_explainer.a10g.run import run_a10g
 from tiling_explainer.contract import MIN_RUNS
 from tiling_explainer.driver import run_mac
 from tiling_explainer.harness import run_process
@@ -36,6 +35,8 @@ def main(argv: list[str] | None = None) -> None:
     if args.command == "a10g":
         if args.calls < MIN_RUNS:
             sys.exit(f"--calls must be at least {MIN_RUNS}")
+        from tiling_explainer.a10g.run import run_a10g
+
         sys.exit(run_a10g(args.n, args.calls))
     if (platform.system(), platform.machine()) != ("Darwin", "arm64"):
         sys.exit("the mac command needs an Apple silicon Mac")

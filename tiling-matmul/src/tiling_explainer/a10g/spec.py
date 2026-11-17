@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 
 from tiling_explainer.contract import A10G_NAME
 
@@ -39,12 +39,9 @@ def parse_smi(text: str) -> SmiReading:
     return SmiReading(name, driver, int(float(clock)), float(power), uuid)
 
 
-def require_a10g(smi_text: str) -> SmiReading:
+def guarded(smi_text: str, work: Callable[[SmiReading], dict[str, object]]) -> dict[str, object]:
     reading = parse_smi(smi_text)
     if reading.name != A10G_NAME:
-        raise WrongChip(f"GPU is {reading.name!r}, not {A10G_NAME!r}; nothing was timed")
-    return reading
-
-
-def guarded[T](smi_text: str, work: Callable[[SmiReading], T]) -> T:
-    return work(require_a10g(smi_text))
+        refused = f"GPU is {reading.name!r}, not {A10G_NAME!r}; nothing was timed"
+        return {"refused": refused, "gpu": asdict(reading)}
+    return work(reading)

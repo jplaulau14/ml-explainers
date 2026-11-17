@@ -40,13 +40,14 @@ def run_a10g(n: int, calls: int) -> int:
     if reason:
         print(f"refusing to start the A10G run: {reason}")
         return 2
-    timings, profile = run_calls(n, calls, commit)
-    write_json(RUNS / "a10g-calls.json", {"calls": timings, "profile": profile})
+    timings, profile, refusals = run_calls(n, calls, commit)
+    raw = {"calls": timings, "profile": profile, "refusals": refusals}
+    write_json(RUNS / "a10g-calls.json", raw)
     launches = parse_launches(str(profile["csv"]))
     problem = run_problem(timings, profile, commit) or profile_problem(launches)
     if problem:
         print(f"{problem}; the raw calls are in runs/a10g-calls.json and nothing went to out/")
         return 2
     folder = OUT if publication else RUNS
-    write_a10g(folder, n, timings, profile, launches, commit, publication)
+    write_a10g(folder, n, timings, profile, refusals, launches, commit, publication)
     return 0
