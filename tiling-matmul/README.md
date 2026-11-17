@@ -65,6 +65,8 @@ The command reads the current commit and runs `uv lock --check` before it upload
 It refuses to start, with exit status 2, when `uv.lock` does not match `pyproject.toml`, or when files in this folder outside `out/` have uncommitted changes.
 Each call reports the file list and hash of the package it ran, which must match HEAD.
 It then starts 3 timing calls and 1 Nsight Compute call in parallel, each in its own container with `gpu="A10"`.
+The calls are pinned to Modal's `us-east` region, because a plain `gpu="A10"` request is often served an A10G.
+A narrow region costs 1.75x Modal's base GPU price.
 
 Each call first reads `nvidia-smi`, and a call on any GPU other than "NVIDIA A10" times nothing and returns a refusal.
 The run records each refusal in `a10-runs.json` and starts a replacement; a seventh refusal fails the run.

@@ -1,6 +1,7 @@
 import json
 from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 import pytest
 from a10_fakes import (
@@ -15,6 +16,7 @@ from a10_fakes import (
     profile,
 )
 
+from tiling_explainer.a10.app import REGIONS, profile_call, timing_call
 from tiling_explainer.a10.gather import TooManyRefusals, gather
 from tiling_explainer.a10.ncu import (
     L2_BYTES,
@@ -47,6 +49,11 @@ def test_chip_guard_lets_the_a10_through() -> None:
     assert guarded(smi("NVIDIA A10"), lambda reading: {"uuid": reading.uuid}) == {
         "uuid": "GPU-1234"
     }
+
+
+@pytest.mark.parametrize("function", [timing_call, profile_call], ids=["timing", "profile"])
+def test_each_a10_call_is_pinned_to_the_regions_that_serve_an_a10(function: Any) -> None:
+    assert list(function._spec_.scheduler_placement.regions) == REGIONS
 
 
 class Done:
