@@ -11,6 +11,8 @@ MACHINE_KEYS = {"id", "name", "n", "runs", "conditions", "versions", "kernels"}
 KERNEL_KEYS = {"kernel", "ratioMin", "ratioMax", "gflopsThisRun"}
 BYTES_KEYS = {"version", "source", "gpu", "n", "vendorKernel", "rows"}
 BYTES_ROW_KEYS = {"kernel", "globalLoadRequests", "sharedLoads", "l2Bytes", "dramReadBytes"}
+VENDOR_KEYS = {"name", "tensorMetric", "tensorValue"}
+TENSOR_NAME_PARTS = ("tensorop", "tf32", "hmma", "xmma", "s1688", "s16816", "s884")
 
 Condition = str | int | float | bool
 
@@ -80,10 +82,32 @@ def is_count(value: object) -> bool:
     return isinstance(value, int | float) and not isinstance(value, bool) and value >= 0
 
 
-def vendor_kernel_problem(name: object) -> str | None:
-    if not isinstance(name, str) or "simt_sgemm" not in name or "tensorop" in name:
-        return f"vendor kernel {name!r} is not a SIMT sgemm"
+def vendor_name_problem(name: object) -> str | None:
+    if not isinstance(name, str) or not name:
+        return "vendor kernel name must be a non-empty string"
+    denied = [part for part in TENSOR_NAME_PARTS if part in name.lower()]
+    return f"vendor kernel {name!r} has {denied[0]!r} in its name" if denied else None
+
+
+def vendor_kernel_problem(name: object, tensor: object, value: object) -> str | None:
+    problem = vendor_name_problem(name)
+    if problem:
+        return problem
+    if not isinstance(tensor, str) or not tensor:
+        return f"vendor kernel {name!r} has no tensor-pipe metric"
+    if not is_count(value):
+        return f"vendor kernel {name!r} has no {tensor} value"
+    if value != 0:
+        return f"vendor kernel {name!r} used the tensor pipe: {tensor} = {value}"
     return None
+
+
+def sidecar_problems(doc: object) -> list[str]:
+    vendor = doc.get("vendorKernel") if isinstance(doc, dict) else None
+    if not isinstance(vendor, dict) or set(vendor) != VENDOR_KEYS:
+        return [f"vendorKernel keys must be {sorted(VENDOR_KEYS)}"]
+    problem = vendor_kernel_problem(vendor["name"], vendor["tensorMetric"], vendor["tensorValue"])
+    return [problem] if problem else []
 
 
 def shape_problems(machine: dict[str, object], where: str) -> list[str]:
@@ -184,7 +208,7 @@ def bytes_problems(doc: object) -> list[str]:
         found.append(f"gpu must be {A10_NAME!r}")
     if not isinstance(doc["n"], int) or doc["n"] <= 0:
         found.append("n must be a positive integer")
-    found += [problem for problem in [vendor_kernel_problem(doc["vendorKernel"])] if problem]
+    found += [problem for problem in [vendor_name_problem(doc["vendorKernel"])] if problem]
     rows = doc["rows"] if isinstance(doc["rows"], list) else []
     ids = [row.get("kernel") if isinstance(row, dict) else None for row in rows]
     if sorted(map(str, ids)) != sorted(SPEED_KERNELS):

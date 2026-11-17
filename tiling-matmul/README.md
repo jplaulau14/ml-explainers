@@ -72,7 +72,9 @@ The run records each refusal in `a10-runs.json` and starts a replacement call, u
 Each timing call compiles the four CUDA kernels with CuPy, checks every hand-written kernel against cuBLAS with `allclose(rtol=1e-4, atol=1e-3)`, and fails if any kernel misses.
 It then gives each kernel 3 warm-up launches and 10 single-launch samples timed with CUDA events; the kernel's time is the upper median of the 10.
 The Nsight Compute call profiles `naive`, `tile32`, `reg4x4` and cuBLAS twice each and keeps the second launch.
-The run exits with status 2 and leaves `out/` alone when the cuBLAS kernel name lacks `simt_sgemm` or contains `tensorop`, or when the calls report different GPU facts or software versions.
+It first runs `ncu --query-metrics` and adds the first tensor-pipe metric the device lists, preferring `sm__inst_executed_pipe_tensor_op_hmma.sum`, and fails if the device lists none of them.
+The run exits with status 2 and leaves `out/` alone when the cuBLAS kernel ran a nonzero tensor-pipe count, or when the calls report different GPU facts or software versions.
+It does the same when the cuBLAS kernel name contains `tensorop`, `tf32`, `hmma`, `xmma`, `s1688`, `s16816` or `s884`, in upper or lower case.
 
 `--n 2048` and `--n 1024` run smaller sizes and write to `runs/`, and `--calls 5` runs more timing calls; the minimum is 3.
 The cost of a full n = 4096 run is not yet confirmed.
@@ -107,13 +109,14 @@ A rerun replaces only the entry with the same machine id and keeps the others, s
 | --- | --- |
 | `gpu` | `NVIDIA A10` |
 | `n` | matrix size of the profiled launches |
-| `vendorKernel` | the cuBLAS kernel name, which must contain `simt_sgemm` and not `tensorop` |
+| `vendorKernel` | the cuBLAS kernel name, which must not contain the tensor-core name parts listed in Run it on Modal |
 | `rows[].globalLoadRequests` | `l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum`, global-load requests into L1 |
 | `rows[].sharedLoads` | `smsp__inst_executed_op_shared_ld.sum`, warp-level shared-memory load instructions |
 | `rows[].l2Bytes` | `lts__t_bytes.sum`, bytes through L2 |
 | `rows[].dramReadBytes` | `dram__bytes_read.sum`, bytes read from DRAM |
 
-`a10-runs.json` adds each kernel's shared-load wavefronts, L1 hit rate and duration from the same profile.
+`a10-runs.json` adds each kernel's shared-load wavefronts, L1 hit rate, duration and tensor-pipe count from the same profile.
+Its `vendorKernel` holds the cuBLAS kernel name, the tensor-pipe metric's name and its value, which must be 0.
 
 Each process makes A and B with `mx.random.normal` and seed 0 and checks every kernel against `mx.matmul` with `allclose(rtol=1e-4, atol=1e-3)` before timing it.
 A kernel then gets 5 warm-up launches and 10 samples.

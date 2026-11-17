@@ -124,10 +124,15 @@ def build_bytes(n: int, source: Source, gpu: str, measured: dict[str, Launch]) -
 def profile_detail(
     profile: Call, launches: list[Launch], measured: dict[str, Launch]
 ) -> dict[str, object]:
-    extra = (SHARED_WAVEFRONTS, L1_HIT_RATE, DURATION)
+    extra = (SHARED_WAVEFRONTS, L1_HIT_RATE, DURATION, str(profile["tensorMetric"]))
     per_kernel = {kernel: {m: launch[m] for m in extra} for kernel, launch in measured.items()}
-    keep = ("container", "gpuUuid", "ncu", "command", "gpu", "software")
+    keep = ("container", "gpuUuid", "ncu", "command", "tensorMetric", "gpu", "software")
     return {**{key: profile[key] for key in keep}, "measured": per_kernel, "launches": launches}
+
+
+def vendor_kernel(profile: Call, launch: Launch) -> dict[str, object]:
+    tensor = str(profile["tensorMetric"])
+    return {"name": launch["name"], "tensorMetric": tensor, "tensorValue": launch[tensor]}
 
 
 def call_detail(call: Call) -> dict[str, object]:
@@ -162,6 +167,7 @@ def write_a10(
         "n": n,
         "publication": publication,
         "distinctGpus": distinct_gpus([*calls, profile]),
+        "vendorKernel": vendor_kernel(profile, measured["vendor"]),
         "calls": [call_detail(call) for call in calls],
         "profile": profile_detail(profile, launches, measured),
         "refusals": refusals,

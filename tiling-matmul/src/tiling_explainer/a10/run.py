@@ -25,12 +25,13 @@ def refusal(publication: bool, dirty: bool, lock_current: bool) -> str | None:
     return None
 
 
-def profile_problem(launches: list[dict[str, str | float]]) -> str | None:
+def profile_problem(launches: list[dict[str, str | float]], tensor: str) -> str | None:
     try:
         measured = measured_launches(launches)
     except ProfileError as error:
         return str(error)
-    return vendor_kernel_problem(measured["vendor"]["name"])
+    vendor = measured["vendor"]
+    return vendor_kernel_problem(vendor["name"], tensor, vendor.get(tensor))
 
 
 def run_a10(n: int, calls: int) -> int:
@@ -44,7 +45,8 @@ def run_a10(n: int, calls: int) -> int:
     raw = {"calls": timings, "profile": profile, "refusals": refusals}
     write_json(RUNS / "a10-calls.json", raw)
     launches = parse_launches(str(profile["csv"]))
-    problem = run_problem(timings, profile, commit) or profile_problem(launches)
+    tensor = str(profile["tensorMetric"])
+    problem = run_problem(timings, profile, commit) or profile_problem(launches, tensor)
     if problem:
         print(f"{problem}; the raw calls are in runs/a10-calls.json and nothing went to out/")
         return 2

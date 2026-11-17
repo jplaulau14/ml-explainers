@@ -15,15 +15,17 @@ from tiling_explainer.a10.ncu import (
     ProfileError,
     measured_launches,
     parse_launches,
+    tensor_metric,
 )
 from tiling_explainer.a10.outputs import build_a10_machine, run_problem, write_a10
 from tiling_explainer.a10.run import profile_problem
 from tiling_explainer.a10.spec import guarded
-from tiling_explainer.contract import SPEED_KERNELS, bytes_problems, problems
+from tiling_explainer.contract import SPEED_KERNELS, bytes_problems, problems, sidecar_problems
 
 COMMIT = "a" * 40
-CUBLAS = "void cutlass::Kernel2<cutlass_80_simt_sgemm_256x128_8x4_nn_align1>(T1::Params)"
+CUBLAS = "ampere_sgemm_128x64_nn"
 TENSOR_OP = "void cutlass::Kernel2<cutlass_80_tensorop_s1688gemm_256x128>(T1::Params)"
+TENSOR = "sm__inst_executed_pipe_tensor_op_hmma.sum"
 HEADER = '"ID","Kernel Name","Metric Name","Metric Unit","Metric Value"'
 NAIVE_TIMES = (100.0, 90.0, 120.0)
 TILE32_TIMES = (80.0, 60.0, 100.0)
@@ -51,12 +53,14 @@ def call(index: int, gpu_name: str = "NVIDIA A10") -> dict[str, object]:
     }
 
 
-def profile(vendor: str = CUBLAS, launches: int = 2) -> dict[str, object]:
+def profile(vendor: str = CUBLAS, launches: int = 2, tensor: int = 0) -> dict[str, object]:
     lines = [HEADER]
     names = ["naive", "tile32", "reg4x4", vendor]
     for index, name in enumerate(name for name in names for _ in range(launches)):
         lines += [f'"{index}","{name}","{metric}","","{1000 + index}"' for metric in METRICS]
-    return {**call(0), "ncu": "Version 2025.2.0.0", "command": "ncu", "csv": "\n".join(lines)}
+        lines.append(f'"{index}","{name}","{TENSOR}","inst","{tensor}"')
+    detail = {"ncu": "Version 2025.2.0.0", "command": "ncu", "tensorMetric": TENSOR}
+    return {**call(0), **detail, "csv": "\n".join(lines)}
 
 
 @pytest.mark.parametrize("name", ["NVIDIA A10G", "NVIDIA L4", "NVIDIA A100-SXM4-40GB"])
@@ -124,6 +128,17 @@ def test_profile_keeps_the_second_launch_of_each_kernel() -> None:
     assert measured["vendor"]["name"] == CUBLAS
 
 
+def test_tensor_metric_is_the_first_listed_candidate_the_device_has() -> None:
+    query = "Device NVIDIA A10 (GA102)\nsm__pipe_tensor_op_hmma_cycles_active  Counter  cycles\n"
+    query += "sm__inst_executed_pipe_tensor_op_hmma  Counter  warp instructions\n"
+    assert tensor_metric(query) == TENSOR
+
+
+def test_device_without_a_tensor_metric_fails_the_profile() -> None:
+    with pytest.raises(ProfileError, match="tensor metrics: \\[\\]"):
+        tensor_metric("Device NVIDIA A10 (GA102)\nlts__t_bytes  Counter  bytes\n")
+
+
 def test_profile_missing_a_launch_is_refused() -> None:
     with pytest.raises(ProfileError, match="expected 2 profiled launches per kernel"):
         measured_launches(parse_launches(str(profile(launches=1)["csv"])))
@@ -161,11 +176,12 @@ def test_calls_on_different_hardware_are_a_run_problem() -> None:
     )
 
 
-def write_run(monkeypatch: pytest.MonkeyPatch, folder: Path, vendor: str) -> None:
+def write_run(monkeypatch: pytest.MonkeyPatch, folder: Path, vendor: str, tensor: int = 0) -> None:
     monkeypatch.setattr(driver, "ROOT", folder)
-    launches = parse_launches(str(profile(vendor)["csv"]))
+    run_profile = profile(vendor, tensor=tensor)
+    launches = parse_launches(str(run_profile["csv"]))
     calls = [call(0), call(1), call(2)]
-    write_a10(folder, 4096, calls, profile(vendor), [], launches, COMMIT, True)
+    write_a10(folder, 4096, calls, run_profile, [], launches, COMMIT, True)
 
 
 def test_a10_run_keeps_the_mac_entry_and_writes_bytes(
@@ -192,14 +208,52 @@ def test_a10_run_keeps_the_mac_entry_and_writes_bytes(
     assert {REQUESTS, SHARED_LOADS, L2_BYTES, DRAM_READ} <= set(METRICS)
 
 
+def test_simt_vendor_kernel_with_no_tensor_instructions_is_recorded(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    write_run(monkeypatch, tmp_path, CUBLAS)
+    sidecar = json.loads((tmp_path / "a10-runs.json").read_text())
+    assert sidecar["vendorKernel"] == {"name": CUBLAS, "tensorMetric": TENSOR, "tensorValue": 0.0}
+    assert sidecar_problems(sidecar) == []
+
+
 def test_tensor_op_vendor_kernel_fails_the_bytes_contract(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     write_run(monkeypatch, tmp_path, TENSOR_OP)
     doc = json.loads((tmp_path / "bytes.json").read_text())
-    assert bytes_problems(doc) == [f"vendor kernel {TENSOR_OP!r} is not a SIMT sgemm"]
+    assert bytes_problems(doc) == [f"vendor kernel {TENSOR_OP!r} has 'tensorop' in its name"]
 
 
-def test_tensor_op_vendor_kernel_stops_the_run_before_out() -> None:
-    launches = parse_launches(str(profile(TENSOR_OP)["csv"]))
-    assert profile_problem(launches) == f"vendor kernel {TENSOR_OP!r} is not a SIMT sgemm"
+@pytest.mark.parametrize(
+    ("name", "part"),
+    [
+        (TENSOR_OP, "tensorop"),
+        ("sm80_xmma_gemm_f32f32_tf32f32_f32_nn_n_tilesize128x128x16", "tf32"),
+        ("ampere_s16816gemm_fp32_128x128_ldg8_nn", "s16816"),
+        ("volta_sgemm_HMMA_128x64_nn", "hmma"),
+    ],
+)
+def test_vendor_kernel_with_a_tensor_core_name_stops_the_run_before_out(
+    name: str, part: str
+) -> None:
+    launches = parse_launches(str(profile(name)["csv"]))
+    assert profile_problem(launches, TENSOR) == f"vendor kernel {name!r} has {part!r} in its name"
+
+
+def test_vendor_kernel_that_ran_tensor_instructions_stops_the_run_before_out() -> None:
+    launches = parse_launches(str(profile(tensor=512)["csv"]))
+    assert (
+        profile_problem(launches, TENSOR)
+        == f"vendor kernel {CUBLAS!r} used the tensor pipe: {TENSOR} = 512.0"
+    )
+
+
+def test_sidecar_with_tensor_instructions_fails_the_contract(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    write_run(monkeypatch, tmp_path, CUBLAS, tensor=512)
+    sidecar = json.loads((tmp_path / "a10-runs.json").read_text())
+    assert sidecar_problems(sidecar) == [
+        f"vendor kernel {CUBLAS!r} used the tensor pipe: {TENSOR} = 512.0"
+    ]

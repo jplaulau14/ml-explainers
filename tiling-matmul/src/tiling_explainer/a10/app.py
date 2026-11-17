@@ -8,7 +8,7 @@ import modal
 
 import tiling_explainer
 from tiling_explainer.a10.gather import gather
-from tiling_explainer.a10.ncu import ncu_command
+from tiling_explainer.a10.ncu import ncu_command, tensor_metric
 from tiling_explainer.a10.spec import SMI_QUERY, SmiReading, guarded
 
 PROJECT = Path(__file__).resolve().parents[3]
@@ -60,7 +60,8 @@ def time_on_a10(reading: SmiReading, n: int, commit: str) -> Call:
 
 def profile_on_a10(reading: SmiReading, n: int, commit: str) -> Call:
     facts = call_facts(reading, commit)
-    command = ncu_command(sys.executable, n)
+    tensor = tensor_metric(run_text(["ncu", "--query-metrics"]))
+    command = ncu_command(sys.executable, n, tensor)
     package_parent = str(Path(tiling_explainer.__file__).resolve().parents[1])
     done = subprocess.run(
         command,
@@ -72,7 +73,8 @@ def profile_on_a10(reading: SmiReading, n: int, commit: str) -> Call:
     if done.returncode != 0:
         raise RuntimeError(f"ncu failed with status {done.returncode}:\n{done.stderr[-3000:]}")
     version = run_text(["ncu", "--version"]).strip().splitlines()[-1]
-    return {**facts, "ncu": version, "command": " ".join(command), "csv": done.stdout}
+    detail = {"ncu": version, "command": " ".join(command), "tensorMetric": tensor}
+    return {**facts, **detail, "csv": done.stdout}
 
 
 def container() -> str:

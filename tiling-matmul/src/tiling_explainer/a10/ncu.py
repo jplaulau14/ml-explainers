@@ -12,6 +12,12 @@ SHARED_WAVEFRONTS = "l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum"
 L1_HIT_RATE = "l1tex__t_sector_hit_rate.pct"
 DURATION = "gpu__time_duration.sum"
 METRICS = (REQUESTS, L2_BYTES, DRAM_READ, SHARED_LOADS, SHARED_WAVEFRONTS, L1_HIT_RATE, DURATION)
+TENSOR_METRICS = (
+    "sm__inst_executed_pipe_tensor_op_hmma.sum",
+    "sm__inst_executed_pipe_tensor.sum",
+    "sm__pipe_tensor_op_hmma_cycles_active.sum",
+    "sm__pipe_tensor_cycles_active.sum",
+)
 HAND_KERNELS = ("naive", "tile32", "reg4x4")
 KERNEL_FILTER = "regex:naive|tile32|reg4x4|gemm|Kernel2"
 LAUNCHES = 2
@@ -23,7 +29,18 @@ class ProfileError(RuntimeError):
     pass
 
 
-def ncu_command(python: str, n: int) -> list[str]:
+def tensor_metric(query: str) -> str:
+    names = {words[0] for words in map(str.split, query.splitlines()) if words and "__" in words[0]}
+    for metric in TENSOR_METRICS:
+        if metric.rsplit(".", 1)[0] in names:
+            return metric
+    seen = sorted(name for name in names if "tensor" in name)
+    raise ProfileError(
+        f"ncu --query-metrics lists none of {TENSOR_METRICS}; tensor metrics: {seen}"
+    )
+
+
+def ncu_command(python: str, n: int, tensor: str) -> list[str]:
     return [
         "ncu",
         "--clock-control",
@@ -33,7 +50,7 @@ def ncu_command(python: str, n: int) -> list[str]:
         "-k",
         KERNEL_FILTER,
         "--metrics",
-        ",".join(METRICS),
+        ",".join((*METRICS, tensor)),
         "--print-units",
         "base",
         "--csv",

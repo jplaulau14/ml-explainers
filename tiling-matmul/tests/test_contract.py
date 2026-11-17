@@ -4,7 +4,13 @@ from pathlib import Path
 import pytest
 
 from tiling_explainer.conditions import PowerState
-from tiling_explainer.contract import CHALLENGE_KERNELS, SPEED_KERNELS, bytes_problems, problems
+from tiling_explainer.contract import (
+    CHALLENGE_KERNELS,
+    SPEED_KERNELS,
+    bytes_problems,
+    problems,
+    sidecar_problems,
+)
 from tiling_explainer.driver import ProcessRecord, build_machine
 
 OUT = Path(__file__).resolve().parents[1] / "out"
@@ -39,6 +45,13 @@ def test_committed_bytes_matches_the_contract() -> None:
     if not path.exists():
         pytest.skip("no committed out/bytes.json yet")
     assert bytes_problems(json.loads(path.read_text())) == []
+
+
+def test_committed_a10_runs_record_a_vendor_kernel_without_tensor_instructions() -> None:
+    path = OUT / "a10-runs.json"
+    if not path.exists():
+        pytest.skip("no committed out/a10-runs.json yet")
+    assert sidecar_problems(json.loads(path.read_text())) == []
 
 
 @pytest.mark.parametrize(("name", "kernels"), FILES)
