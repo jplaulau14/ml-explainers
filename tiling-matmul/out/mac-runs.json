@@ -1,0 +1,149 @@
+{
+  "version": 1,
+  "source": {
+    "commit": "6c06665c9b7f54d7a1f923c15eb9a06ef48c059e",
+    "code": "https://github.com/jplaulau14/ml-explainers/tree/6c06665c9b7f54d7a1f923c15eb9a06ef48c059e/tiling-matmul"
+  },
+  "n": 4096,
+  "publication": true,
+  "processes": [
+    {
+      "before": {
+        "acPower": true,
+        "lowPowerMode": false
+      },
+      "after": {
+        "acPower": true,
+        "lowPowerMode": false
+      },
+      "kernels": {
+        "naive": {
+          "ms": 197.5074218789814,
+          "maxAbsErr": 0.0
+        },
+        "tile32": {
+          "ms": 183.96732812107075,
+          "maxAbsErr": 0.0
+        },
+        "reg4x4": {
+          "ms": 70.48041149391793,
+          "maxAbsErr": 0.0
+        },
+        "reg8x8": {
+          "ms": 292.7304636250483,
+          "maxAbsErr": 0.0
+        },
+        "vendor": {
+          "ms": 35.09960412338842,
+          "maxAbsErr": 0.0
+        }
+      },
+      "ratiosToNaive": {
+        "naive": 1.0,
+        "tile32": 1.0736005349221562,
+        "reg4x4": 2.8023023375228906,
+        "reg8x8": 0.6747074405346624,
+        "vendor": 5.627055541272429
+      },
+      "ratiosToVendor": {
+        "naive": 0.17771283625430023,
+        "tile32": 0.1907925960651503,
+        "reg4x4": 0.4980050964432482,
+        "reg8x8": 0.11990417289929446,
+        "vendor": 1.0
+      }
+    },
+    {
+      "before": {
+        "acPower": true,
+        "lowPowerMode": false
+      },
+      "after": {
+        "acPower": true,
+        "lowPowerMode": false
+      },
+      "kernels": {
+        "naive": {
+          "ms": 198.18277611921076,
+          "maxAbsErr": 0.0
+        },
+        "tile32": {
+          "ms": 187.1674740104936,
+          "maxAbsErr": 0.0
+        },
+        "reg4x4": {
+          "ms": 70.30720311740879,
+          "maxAbsErr": 0.0
+        },
+        "reg8x8": {
+          "ms": 291.5879634965677,
+          "maxAbsErr": 0.0
+        },
+        "vendor": {
+          "ms": 37.75510936975479,
+          "maxAbsErr": 0.0
+        }
+      },
+      "ratiosToNaive": {
+        "naive": 1.0,
+        "tile32": 1.0588526514393177,
+        "reg4x4": 2.8188118333801087,
+        "reg8x8": 0.6796672048554693,
+        "vendor": 5.249164402579451
+      },
+      "ratiosToVendor": {
+        "naive": 0.1905065117618716,
+        "tile32": 0.20171832509551332,
+        "reg4x4": 0.5370020096903305,
+        "reg8x8": 0.12948102835595685,
+        "vendor": 1.0
+      }
+    },
+    {
+      "before": {
+        "acPower": true,
+        "lowPowerMode": false
+      },
+      "after": {
+        "acPower": true,
+        "lowPowerMode": false
+      },
+      "kernels": {
+        "naive": {
+          "ms": 196.38829687028192,
+          "maxAbsErr": 0.0
+        },
+        "tile32": {
+          "ms": 184.86708849377465,
+          "maxAbsErr": 0.0
+        },
+        "reg4x4": {
+          "ms": 70.49785411800258,
+          "maxAbsErr": 0.0
+        },
+        "reg8x8": {
+          "ms": 293.00581250572577,
+          "maxAbsErr": 0.0
+        },
+        "vendor": {
+          "ms": 37.188546877587214,
+          "maxAbsErr": 0.0
+        }
+      },
+      "ratiosToNaive": {
+        "naive": 1.0,
+        "tile32": 1.0623215763842966,
+        "reg4x4": 2.7857343932988097,
+        "reg8x8": 0.6702539283804966,
+        "vendor": 5.280881167977046
+      },
+      "ratiosToVendor": {
+        "naive": 0.18936233711599898,
+        "tile32": 0.20116369647288262,
+        "reg4x4": 0.5275131752994822,
+        "reg8x8": 0.12692085033931022,
+        "vendor": 1.0
+      }
+    }
+  ]
+}

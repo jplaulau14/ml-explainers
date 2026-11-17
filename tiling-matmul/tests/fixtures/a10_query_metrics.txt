@@ -1,0 +1,30 @@
+Device NVIDIA A10 (GA102)
+--------------------------------------------------------------------------- --------------- --------------- ----------------------------------------------------------------------
+Metric Name                                                                 Metric Type     Metric Unit     Metric Description
+--------------------------------------------------------------------------- --------------- --------------- ----------------------------------------------------------------------
+dram__bytes                                                                 Counter         byte            # of bytes accessed in DRAM
+dram__bytes_read                                                            Counter         byte            # of bytes read from DRAM
+sm__inst_executed_pipe_lsu                                                  Counter         inst            # of warp instructions executed by lsu pipe
+sm__inst_executed_pipe_tensor                                               Counter         inst            # of warp instructions executed by tensor pipe
+sm__inst_executed_pipe_tensor_op_hmma                                       Counter         inst            # of warp instructions executed by tensor pipe (HMMA ops)
+sm__inst_executed_pipe_tensor_op_imma                                       Counter         inst            # of warp instructions executed by tensor pipe (IMMA/BMMA ops)
+sm__inst_executed_pipe_tex                                                  Counter         inst            # of warp instructions executed by tex pipe
+sm__pipe_fp64_cycles_active                                                   Counter         cycle           # of cycles where fp64 pipe was active
+sm__pipe_tensor_cycles_active                                                 Counter         cycle           # of cycles where tensor pipe was active
+sm__pipe_tensor_op_hmma_cycles_active                                         Counter         cycle           # of cycles where tensor pipe was active (HMMA ops)
+sm__pipe_tensor_op_imma_cycles_active                                         Counter         cycle           # of cycles where tensor pipe was active (IMMA/BMMA ops)
+sm__sass_average_branch_targets_threads_uniform                               Ratio                           proportion of branch targets where all active threads selected the
+smsp__average_inst_executed_pipe_lsu_per_warp                               Ratio           inst/warp       average # of instructions executed by pipe lsu per warp
+smsp__average_inst_executed_pipe_tensor_op_hmma_per_warp                    Ratio           inst/warp       average # of instructions executed by pipe tensor_op_hmma per warp
+smsp__average_inst_executed_pipe_tensor_op_imma_per_warp                    Ratio           inst/warp       average # of instructions executed by pipe tensor_op_imma per warp
+smsp__average_inst_executed_pipe_tex_per_warp                               Ratio           inst/warp       average # of instructions executed by pipe tex per warp
+smsp__inst_executed_pipe_lsu                                                  Counter         inst            # of warp instructions executed by lsu pipe
+smsp__inst_executed_pipe_tensor                                               Counter         inst            # of warp instructions executed by tensor pipe
+smsp__inst_executed_pipe_tensor_op_hmma                                       Counter         inst            # of warp instructions executed by tensor pipe (HMMA ops)
+smsp__inst_executed_pipe_tensor_op_imma                                       Counter         inst            # of warp instructions executed by tensor pipe (IMMA/BMMA ops)
+smsp__inst_executed_pipe_tex                                                  Counter         inst            # of warp instructions executed by tex pipe
+smsp__pipe_fp64_cycles_active                                                 Counter         cycle           # of cycles where fp64 pipe was active
+smsp__pipe_tensor_cycles_active                                               Counter         cycle           # of cycles where tensor pipe was active
+smsp__pipe_tensor_op_hmma_cycles_active                                       Counter         cycle           # of cycles where tensor pipe was active (HMMA ops)
+smsp__pipe_tensor_op_imma_cycles_active                                       Counter         cycle           # of cycles where tensor pipe was active (IMMA/BMMA ops)
+smsp__sass_average_branch_targets_threads_uniform                             Ratio                           proportion of branch targets where all active threads selected the
