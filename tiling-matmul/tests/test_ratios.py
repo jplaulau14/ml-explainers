@@ -21,5 +21,5 @@ def test_summary_range_is_the_per_run_extremes() -> None:
 
 def test_gflops_this_run_is_the_median_run() -> None:
     row = summarize("tile32", 4096, RUNS)
-    assert row["gflopsThisRun"] == pytest.approx(gflops(4096, 100.0))
-    assert gflops(4096, 100.0) == pytest.approx(2 * 4096**3 / 0.1 / 1e9)
+    assert row["gflopsThisRun"] == pytest.approx(1374.38953472)
+    assert gflops(4096, 100.0) == pytest.approx(1374.38953472)

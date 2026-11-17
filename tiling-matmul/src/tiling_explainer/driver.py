@@ -123,8 +123,9 @@ def write_json(path: Path, payload: object) -> None:
     print(f"wrote {path.relative_to(ROOT)}")
 
 
-def write_outputs(folder: Path, n: int, records: list[ProcessRecord], publication: bool) -> None:
-    commit = head_commit(ROOT)
+def write_outputs(
+    folder: Path, n: int, records: list[ProcessRecord], publication: bool, commit: str
+) -> None:
     source: Source = {"commit": commit, "code": code_url(commit)}
     chip, versions = chip_name(), {"commit": commit, **software_versions()}
     for name, kernels in (("speeds.json", SPEED_KERNELS), ("challenge.json", CHALLENGE_KERNELS)):
@@ -142,6 +143,7 @@ def write_outputs(folder: Path, n: int, records: list[ProcessRecord], publicatio
 
 def run_mac(n: int, processes: int, allow_battery: bool) -> int:
     publication = n == PUBLICATION_N and not allow_battery
+    commit = head_commit(ROOT)
     reason = refusal([read_power()], is_dirty(ROOT)) if publication else None
     if reason:
         print(f"refusing a publication run: {reason}. Pass --allow-battery for a test run.")
@@ -151,7 +153,7 @@ def run_mac(n: int, processes: int, allow_battery: bool) -> int:
     reason = refusal(states, is_dirty(ROOT)) if publication else None
     if reason:
         print(f"conditions changed during the run ({reason}); nothing written to out/")
-        write_outputs(RUNS, n, records, publication=False)
+        write_outputs(RUNS, n, records, False, commit)
         return 2
-    write_outputs(OUT if publication else RUNS, n, records, publication)
+    write_outputs(OUT if publication else RUNS, n, records, publication, commit)
     return 0

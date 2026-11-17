@@ -1,5 +1,6 @@
 import argparse
 import json
+import platform
 import sys
 
 from tiling_explainer.contract import MIN_RUNS
@@ -28,6 +29,8 @@ def main(argv: list[str] | None = None) -> None:
     if args.command == "process":
         print(json.dumps(run_process(args.n)))
         return
+    if (platform.system(), platform.machine()) != ("Darwin", "arm64"):
+        sys.exit("the mac command needs an Apple silicon Mac")
     if args.processes < MIN_RUNS:
         sys.exit(f"--processes must be at least {MIN_RUNS}")
     sys.exit(run_mac(args.n, args.processes, args.allow_battery))
