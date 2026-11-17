@@ -38,20 +38,12 @@ def names(folder: Path) -> list[str]:
     return sorted(path.name for path in folder.iterdir())
 
 
-def test_dirty_tree_refuses_a_publication_run_before_any_call(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+@pytest.mark.parametrize("n", [4096, 1024])
+def test_dirty_tree_refuses_before_any_call(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture[str], n: int
 ) -> None:
     started = fake_a10(monkeypatch, tmp_path, dirty=True)
-    assert run.run_a10(4096, 3) == 2
-    assert "uncommitted changes" in capsys.readouterr().out
-    assert (started, list(tmp_path.iterdir())) == ([], [])
-
-
-def test_dirty_tree_refuses_a_smaller_run_before_any_call(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture[str]
-) -> None:
-    started = fake_a10(monkeypatch, tmp_path, dirty=True)
-    assert run.run_a10(1024, 3) == 2
+    assert run.run_a10(n, 3) == 2
     assert "uncommitted changes" in capsys.readouterr().out
     assert (started, list(tmp_path.iterdir())) == ([], [])
 

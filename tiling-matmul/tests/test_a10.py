@@ -214,6 +214,16 @@ def test_sidecar_records_every_tensor_metric_and_counts_timing_gpus_only(tmp_pat
     assert sidecar_problems(sidecar, documents(tmp_path)["bytes.json"]) == []
 
 
+def test_sidecar_keeps_only_the_query_header_and_tensor_pipe_rows(tmp_path: Path) -> None:
+    kept = documents(tmp_path)["a10-runs.json"]["profile"]["metricsQuery"].splitlines()
+    assert [line.split()[0] for line in kept] == [
+        "Device",
+        "Metric",
+        "sm__inst_executed_pipe_tensor_op_hmma",
+        "smsp__average_inst_executed_pipe_tensor_op_hmma_per_warp",
+    ]
+
+
 def test_bytes_from_another_commit_fails_the_sidecar_contract(tmp_path: Path) -> None:
     built = documents(tmp_path)
     other = {**built["bytes.json"], "source": {"commit": "b" * 40, "code": ""}}

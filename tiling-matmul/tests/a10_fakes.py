@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from tiling_explainer.a10.ncu import METRICS
 from tiling_explainer.a10.upload import code_record
 
@@ -9,6 +11,21 @@ HMMA_CYCLES = "sm__pipe_tensor_op_hmma_cycles_active.sum"
 TENSORS = [HMMA, HMMA_CYCLES]
 FILES = {"__init__.py": b"", "cli.py": b"print('hi')\n"}
 CODE = code_record(FILES)
+QUERY_FIRST_WORDS = (
+    "Device",
+    "Metric",
+    "dram__bytes",
+    "sm__inst_executed_pipe_lsu",
+    "sm__inst_executed_pipe_tensor_op_hmma",
+    "smsp__average_inst_executed_pipe_tensor_op_hmma_per_warp",
+)
+QUERY_ROWS = "\n".join(
+    line
+    for line in (Path(__file__).parent / "fixtures" / "a10_query_metrics.txt")
+    .read_text()
+    .splitlines()
+    if line.split()[:1] and line.split()[0] in QUERY_FIRST_WORDS
+)
 HEADER = '"ID","Kernel Name","Metric Name","Metric Unit","Metric Value"'
 NAIVE_TIMES = (100.0, 90.0, 120.0)
 TILE32_TIMES = (80.0, 60.0, 100.0)
@@ -41,5 +58,5 @@ def profile(vendor: str = CUBLAS, launches: int = 2, cycles: int = 0) -> dict[st
         lines.append(f'"{index}","{name}","{HMMA}","inst","0"')
         lines.append(f'"{index}","{name}","{HMMA_CYCLES}","cycle","{cycles}"')
     detail = {"ncu": "Version 2025.2.0.0", "command": "ncu", "tensorMetrics": TENSORS}
-    detail["metricsQuery"] = ""
+    detail["metricsQuery"] = QUERY_ROWS
     return {**call(0), "gpuUuid": "GPU-9", **detail, "csv": "\n".join(lines)}

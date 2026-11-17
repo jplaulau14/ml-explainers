@@ -9,6 +9,7 @@ from tiling_explainer.a10.ncu import (
     Launch,
     bytes_rows,
     measured_launches,
+    trimmed_query,
 )
 from tiling_explainer.a10.spec import (
     KERNEL_ORDER,
@@ -136,9 +137,13 @@ def profile_detail(
 ) -> dict[str, object]:
     extra = (SHARED_WAVEFRONTS, L1_HIT_RATE, DURATION, *tensor_names(profile))
     per_kernel = {kernel: {m: launch[m] for m in extra} for kernel, launch in measured.items()}
-    keep = ("container", "gpuUuid", "code", "ncu", "command", "tensorMetrics", "metricsQuery")
-    keep += ("gpu", "software")
-    return {**{key: profile[key] for key in keep}, "measured": per_kernel, "launches": launches}
+    keep = ("container", "gpuUuid", "code", "ncu", "command", "tensorMetrics", "gpu", "software")
+    return {
+        **{key: profile[key] for key in keep},
+        "metricsQuery": trimmed_query(str(profile["metricsQuery"])),
+        "measured": per_kernel,
+        "launches": launches,
+    }
 
 
 def tensor_names(profile: Call) -> list[str]:

@@ -36,6 +36,15 @@ def tensor_metrics(query: str) -> list[str]:
     return sorted(counters)
 
 
+def trimmed_query(query: str) -> str:
+    kept = [
+        line
+        for line in query.splitlines()
+        if line.startswith(("Device ", "Metric Name")) or TENSOR_PIPE in line
+    ]
+    return "\n".join(kept)
+
+
 def ncu_command(python: str, n: int, tensors: list[str]) -> list[str]:
     return [
         "ncu",
