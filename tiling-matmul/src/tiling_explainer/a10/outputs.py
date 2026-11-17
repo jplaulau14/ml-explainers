@@ -16,7 +16,9 @@ from tiling_explainer.a10.spec import (
     TIMING_METHOD,
     WARMUPS,
 )
+from tiling_explainer.a10.upload import CodeRecord, code_problem
 from tiling_explainer.contract import (
+    A10_NAME,
     CHALLENGE_KERNELS,
     SPEED_KERNELS,
     VERSION,
@@ -24,8 +26,11 @@ from tiling_explainer.contract import (
     Condition,
     Machine,
     Source,
+    bytes_problems,
+    problems,
+    sidecar_problems,
 )
-from tiling_explainer.driver import merged, write_json
+from tiling_explainer.driver import merged
 from tiling_explainer.provenance import code_url
 from tiling_explainer.ratios import ratios_to, summarize
 
@@ -47,10 +52,15 @@ def distinct_gpus(calls: list[Call]) -> int:
     return len({call["gpuUuid"] for call in calls})
 
 
-def run_problem(calls: list[Call], profile: Call, commit: str) -> str | None:
+def run_problem(calls: list[Call], profile: Call, code: CodeRecord) -> str | None:
     every = [*calls, profile]
-    if any(call["commit"] != commit for call in every):
-        return "a call recorded a different commit"
+    names = sorted({str(section(call, "gpu")["name"]) for call in every} - {A10_NAME})
+    if names:
+        return f"a call ran on {names}, not {A10_NAME!r}"
+    for call in every:
+        problem = code_problem(code, call.get("code"))
+        if problem:
+            return problem
     for key in ("gpu", "software"):
         facts = {json.dumps({**section(c, key), "uuid": ""}, sort_keys=True) for c in every}
         if len(facts) > 1:
@@ -124,19 +134,26 @@ def build_bytes(n: int, source: Source, gpu: str, measured: dict[str, Launch]) -
 def profile_detail(
     profile: Call, launches: list[Launch], measured: dict[str, Launch]
 ) -> dict[str, object]:
-    extra = (SHARED_WAVEFRONTS, L1_HIT_RATE, DURATION, str(profile["tensorMetric"]))
+    extra = (SHARED_WAVEFRONTS, L1_HIT_RATE, DURATION, *tensor_names(profile))
     per_kernel = {kernel: {m: launch[m] for m in extra} for kernel, launch in measured.items()}
-    keep = ("container", "gpuUuid", "ncu", "command", "tensorMetric", "gpu", "software")
+    keep = ("container", "gpuUuid", "code", "ncu", "command", "tensorMetrics", "gpu", "software")
     return {**{key: profile[key] for key in keep}, "measured": per_kernel, "launches": launches}
 
 
+def tensor_names(profile: Call) -> list[str]:
+    names = profile["tensorMetrics"]
+    if not isinstance(names, list):
+        raise TypeError("profile field tensorMetrics must be a list")
+    return [str(name) for name in names]
+
+
 def vendor_kernel(profile: Call, launch: Launch) -> dict[str, object]:
-    tensor = str(profile["tensorMetric"])
-    return {"name": launch["name"], "tensorMetric": tensor, "tensorValue": launch[tensor]}
+    tensors = {name: launch.get(name) for name in tensor_names(profile)}
+    return {"name": launch["name"], "tensorMetrics": tensors}
 
 
 def call_detail(call: Call) -> dict[str, object]:
-    keep = ("container", "gpuUuid", "gpu", "software", "kernels", "attributes")
+    keep = ("container", "gpuUuid", "code", "gpu", "software", "kernels", "attributes")
     return {
         **{key: call[key] for key in keep},
         "ratiosToNaive": ratios_to("naive", timings(call)),
@@ -144,7 +161,7 @@ def call_detail(call: Call) -> dict[str, object]:
     }
 
 
-def write_a10(
+def a10_documents(
     folder: Path,
     n: int,
     calls: list[Call],
@@ -153,23 +170,35 @@ def write_a10(
     launches: list[Launch],
     commit: str,
     publication: bool,
-) -> None:
+) -> dict[Path, object]:
     source: Source = {"commit": commit, "code": code_url(commit)}
     measured = measured_launches(launches)
+    documents: dict[Path, object] = {}
     for name, kernels in (("speeds.json", SPEED_KERNELS), ("challenge.json", CHALLENGE_KERNELS)):
         machine = build_a10_machine(n, calls, profile, kernels, publication, commit)
-        write_json(folder / name, merged(folder / name, source, machine))
+        documents[folder / name] = merged(folder / name, source, machine)
     gpu = str(section(calls[0], "gpu")["name"])
-    write_json(folder / "bytes.json", build_bytes(n, source, gpu, measured))
-    sidecar = {
+    documents[folder / "bytes.json"] = build_bytes(n, source, gpu, measured)
+    documents[folder / "a10-runs.json"] = {
         "version": VERSION,
         "source": source,
         "n": n,
         "publication": publication,
-        "distinctGpus": distinct_gpus([*calls, profile]),
+        "distinctGpus": distinct_gpus(calls),
         "vendorKernel": vendor_kernel(profile, measured["vendor"]),
         "calls": [call_detail(call) for call in calls],
         "profile": profile_detail(profile, launches, measured),
         "refusals": refusals,
     }
-    write_json(folder / "a10-runs.json", sidecar)
+    return documents
+
+
+def document_problems(documents: Mapping[Path, object]) -> list[str]:
+    by_name = {path.name: document for path, document in documents.items()}
+    found = [f"speeds.json: {p}" for p in problems(by_name["speeds.json"], SPEED_KERNELS)]
+    found += [
+        f"challenge.json: {p}" for p in problems(by_name["challenge.json"], CHALLENGE_KERNELS)
+    ]
+    found += [f"bytes.json: {p}" for p in bytes_problems(by_name["bytes.json"])]
+    sidecar = sidecar_problems(by_name["a10-runs.json"], by_name["bytes.json"])
+    return found + [f"a10-runs.json: {p}" for p in sidecar]

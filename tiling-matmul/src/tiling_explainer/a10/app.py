@@ -8,8 +8,9 @@ import modal
 
 import tiling_explainer
 from tiling_explainer.a10.gather import gather
-from tiling_explainer.a10.ncu import ncu_command, tensor_metric
+from tiling_explainer.a10.ncu import ncu_command, tensor_metrics
 from tiling_explainer.a10.spec import SMI_QUERY, SmiReading, guarded
+from tiling_explainer.a10.upload import code_record, uploaded_files
 
 PROJECT = Path(__file__).resolve().parents[3]
 CUDA_IMAGE = (
@@ -48,6 +49,7 @@ def call_facts(reading: SmiReading, commit: str) -> Call:
         "commit": commit,
         "container": container(),
         "gpuUuid": reading.uuid,
+        "code": code_record(uploaded_files(Path(tiling_explainer.__file__).parent)),
         "gpu": {**asdict(reading), **bench.device_facts()},
         "software": software,
     }
@@ -60,8 +62,8 @@ def time_on_a10(reading: SmiReading, n: int, commit: str) -> Call:
 
 def profile_on_a10(reading: SmiReading, n: int, commit: str) -> Call:
     facts = call_facts(reading, commit)
-    tensor = tensor_metric(run_text(["ncu", "--query-metrics"]))
-    command = ncu_command(sys.executable, n, tensor)
+    tensors = tensor_metrics(run_text(["ncu", "--query-metrics"]))
+    command = ncu_command(sys.executable, n, tensors)
     package_parent = str(Path(tiling_explainer.__file__).resolve().parents[1])
     done = subprocess.run(
         command,
@@ -73,7 +75,7 @@ def profile_on_a10(reading: SmiReading, n: int, commit: str) -> Call:
     if done.returncode != 0:
         raise RuntimeError(f"ncu failed with status {done.returncode}:\n{done.stderr[-3000:]}")
     version = run_text(["ncu", "--version"]).strip().splitlines()[-1]
-    detail = {"ncu": version, "command": " ".join(command), "tensorMetric": tensor}
+    detail = {"ncu": version, "command": " ".join(command), "tensorMetrics": tensors}
     return {**facts, **detail, "csv": done.stdout}
 
 

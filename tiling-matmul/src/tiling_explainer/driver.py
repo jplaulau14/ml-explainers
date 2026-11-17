@@ -14,6 +14,7 @@ from tiling_explainer.conditions import (
 )
 from tiling_explainer.contract import (
     CHALLENGE_KERNELS,
+    PUBLICATION_N,
     SPEED_KERNELS,
     VERSION,
     Machine,
@@ -27,7 +28,6 @@ from tiling_explainer.ratios import gflops, ratios_to, summarize
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "out"
 RUNS = ROOT / "runs"
-PUBLICATION_N = 4096
 PROCESS_TIMEOUT_SECONDS = 1200
 
 Results = dict[str, dict[str, float]]

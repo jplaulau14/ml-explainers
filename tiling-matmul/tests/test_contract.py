@@ -48,10 +48,11 @@ def test_committed_bytes_matches_the_contract() -> None:
 
 
 def test_committed_a10_runs_record_a_vendor_kernel_without_tensor_instructions() -> None:
-    path = OUT / "a10-runs.json"
+    path, bytes_path = OUT / "a10-runs.json", OUT / "bytes.json"
     if not path.exists():
         pytest.skip("no committed out/a10-runs.json yet")
-    assert sidecar_problems(json.loads(path.read_text())) == []
+    sidecar, bytes_doc = json.loads(path.read_text()), json.loads(bytes_path.read_text())
+    assert sidecar_problems(sidecar, bytes_doc) == []
 
 
 @pytest.mark.parametrize(("name", "kernels"), FILES)

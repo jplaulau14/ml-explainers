@@ -7,6 +7,8 @@ from tiling_explainer.contract import MIN_RUNS
 from tiling_explainer.driver import run_mac
 from tiling_explainer.harness import run_process
 
+MAX_CALLS = 8
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="tiling-explainer")
@@ -33,8 +35,8 @@ def main(argv: list[str] | None = None) -> None:
         print(json.dumps(run_process(args.n)))
         return
     if args.command == "a10":
-        if args.calls < MIN_RUNS:
-            sys.exit(f"--calls must be at least {MIN_RUNS}")
+        if not MIN_RUNS <= args.calls <= MAX_CALLS:
+            sys.exit(f"--calls must be from {MIN_RUNS} to {MAX_CALLS}")
         from tiling_explainer.a10.run import run_a10
 
         sys.exit(run_a10(args.n, args.calls))

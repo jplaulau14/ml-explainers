@@ -15,7 +15,7 @@ A harness times the Metal versions on an Apple silicon Mac against `mx.matmul`, 
 | `vendor` | `mx.matmul` on the Mac, cuBLAS through `cupy.matmul` on the A10 | set by the library | any n |
 
 The Metal sources are in `src/tiling_explainer/metal.py` and run through `mx.fast.metal_kernel`.
-The CUDA sources are in `src/tiling_explainer/cuda.py`, written for CuPy's `RawKernel`, with the thread shapes in the table.
+The CUDA sources are in `src/tiling_explainer/cuda.py`, written for CuPy's `RawKernel`.
 A kernel launched with a size it does not accept raises `ValueError` before it reaches the GPU.
 
 ## Run it
@@ -41,7 +41,7 @@ If any reading fails those checks, it writes the results to `runs/` with `public
 The run takes three options.
 
 - `--processes 5` runs more processes. The minimum is 3.
-- `--n 2048` times the smaller size. 2048 and 4096 are the only sizes.
+- `--n 2048` times the smaller size, the only other one.
 - `--allow-battery` skips the checks for a test run.
 
 Only an n = 4096 run without `--allow-battery` is checked and writes to `out/`.
@@ -49,7 +49,7 @@ Every other run writes to `runs/`.
 
 `uv run pytest` checks the Metal kernels against `mx.matmul`, the counting and ratio maths, the chip guard, the committed files and their recorded commits.
 The CUDA kernels are checked against cuBLAS inside every Modal timing call.
-The test that compares each kernel with `mx.matmul` skips on Linux, where MLX has no Metal backend; the size-rejection test still runs.
+The test that compares each kernel with `mx.matmul` skips on Linux, where MLX has no Metal backend.
 
 ## Run it on Modal
 
@@ -63,20 +63,27 @@ uv run tiling-explainer a10
 
 The command reads the current commit and runs `uv lock --check` before it uploads anything.
 It refuses to start, with exit status 2, when `uv.lock` does not match `pyproject.toml`, or when files in this folder outside `out/` have uncommitted changes and n is 4096.
+Each call reports the file list and hash of the package it ran, which must match HEAD.
 It then starts 3 timing calls and 1 Nsight Compute call in parallel, each in its own container with `gpu="A10"`.
 
-Each call first reads `nvidia-smi`.
-A call that lands on any GPU other than "NVIDIA A10", an NVIDIA A10G included, times nothing and returns a refusal.
-The run records each refusal in `a10-runs.json` and starts a replacement call, up to 6 per run, and past that it exits with an error.
+Each call first reads `nvidia-smi`, and a call on any GPU other than "NVIDIA A10" times nothing and returns a refusal.
+The run records each refusal in `a10-runs.json` and starts a replacement; a seventh refusal fails the run.
 
 Each timing call compiles the four CUDA kernels with CuPy, checks every hand-written kernel against cuBLAS with `allclose(rtol=1e-4, atol=1e-3)`, and fails if any kernel misses.
 It then gives each kernel 3 warm-up launches and 10 single-launch samples timed with CUDA events; the kernel's time is the upper median of the 10.
 The Nsight Compute call profiles `naive`, `tile32`, `reg4x4` and cuBLAS twice each and keeps the second launch.
-It first runs `ncu --query-metrics` and adds the first tensor-pipe metric the device lists, preferring `sm__inst_executed_pipe_tensor_op_hmma.sum`, and fails if the device lists none of them.
-The run exits with status 2 and leaves `out/` alone when the cuBLAS kernel ran a nonzero tensor-pipe count, or when the calls report different GPU facts or software versions.
-It does the same when the cuBLAS kernel name contains `tensorop`, `tf32`, `hmma`, `xmma`, `s1688`, `s16816` or `s884`, in upper or lower case.
+It collects every `pipe_tensor` counter that `ncu --query-metrics` lists, and fails if the device lists none.
 
-`--n 2048` and `--n 1024` run smaller sizes and write to `runs/`, and `--calls 5` runs more timing calls; the minimum is 3.
+Each of these cases exits with status 2 and leaves `out/` alone.
+
+- a call ran on a GPU other than "NVIDIA A10";
+- a call's package differs from HEAD;
+- the calls report different GPU facts or software versions;
+- any tensor-pipe counter is nonzero for the cuBLAS kernel;
+- the cuBLAS kernel name contains `tensorop`, `tf32`, `hmma`, `s1688`, `s16816` or `s884`, in upper or lower case;
+- an output file fails the checks in `contract.py`.
+
+`--n 2048` and `--n 1024` write to `runs/`. `--calls` sets the timing calls, from 3 to 8.
 The cost of a full n = 4096 run is not yet confirmed.
 
 ## What you get
@@ -85,7 +92,7 @@ The cost of a full n = 4096 run is not yet confirmed.
 - `out/challenge.json`: the entry for `reg8x8`.
 - `out/mac-runs.json`: every process's times, errors against `mx.matmul`, ratios to naive and to `mx.matmul`, and power readings.
 - `out/bytes.json`: Nsight Compute counts for `naive`, `tile32`, `reg4x4` and `vendor` on the A10.
-- `out/a10-runs.json`: every A10 call's container, GPU UUID, device facts, versions, times, errors against cuBLAS and kernel register counts, plus the raw Nsight Compute rows.
+- `out/a10-runs.json`: every A10 call's container, GPU UUID, code hash, device facts, versions, times, errors against cuBLAS and register counts, plus the raw Nsight Compute rows.
 
 `speeds.json` and `challenge.json` carry the same fields and differ only in the kernels they list.
 
@@ -115,8 +122,9 @@ A rerun replaces only the entry with the same machine id and keeps the others, s
 | `rows[].l2Bytes` | `lts__t_bytes.sum`, bytes through L2 |
 | `rows[].dramReadBytes` | `dram__bytes_read.sum`, bytes read from DRAM |
 
-`a10-runs.json` adds each kernel's shared-load wavefronts, L1 hit rate, duration and tensor-pipe count from the same profile.
-Its `vendorKernel` holds the cuBLAS kernel name, the tensor-pipe metric's name and its value, which must be 0.
+`a10-runs.json` adds each kernel's shared-load wavefronts, L1 hit rate, duration and tensor-pipe counters.
+Its `vendorKernel` holds the cuBLAS kernel name and every tensor-pipe counter, each of which must be 0.
+Its `distinctGpus` counts timing-call GPUs only, and its commit must match `bytes.json`.
 
 Each process makes A and B with `mx.random.normal` and seed 0 and checks every kernel against `mx.matmul` with `allclose(rtol=1e-4, atol=1e-3)` before timing it.
 A kernel then gets 5 warm-up launches and 10 samples.

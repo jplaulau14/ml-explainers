@@ -1,6 +1,7 @@
 from typing import TypedDict
 
 VERSION = 1
+PUBLICATION_N = 4096
 SPEED_KERNELS = frozenset({"naive", "tile32", "reg4x4", "vendor"})
 CHALLENGE_KERNELS = frozenset({"reg8x8"})
 MACHINE_IDS = frozenset({"m3-pro", "a10"})
@@ -11,8 +12,8 @@ MACHINE_KEYS = {"id", "name", "n", "runs", "conditions", "versions", "kernels"}
 KERNEL_KEYS = {"kernel", "ratioMin", "ratioMax", "gflopsThisRun"}
 BYTES_KEYS = {"version", "source", "gpu", "n", "vendorKernel", "rows"}
 BYTES_ROW_KEYS = {"kernel", "globalLoadRequests", "sharedLoads", "l2Bytes", "dramReadBytes"}
-VENDOR_KEYS = {"name", "tensorMetric", "tensorValue"}
-TENSOR_NAME_PARTS = ("tensorop", "tf32", "hmma", "xmma", "s1688", "s16816", "s884")
+VENDOR_KEYS = {"name", "tensorMetrics"}
+TENSOR_NAME_PARTS = ("tensorop", "tf32", "hmma", "s1688", "s16816", "s884")
 
 Condition = str | int | float | bool
 
@@ -89,25 +90,33 @@ def vendor_name_problem(name: object) -> str | None:
     return f"vendor kernel {name!r} has {denied[0]!r} in its name" if denied else None
 
 
-def vendor_kernel_problem(name: object, tensor: object, value: object) -> str | None:
+def vendor_kernel_problem(name: object, tensors: object) -> str | None:
     problem = vendor_name_problem(name)
     if problem:
         return problem
-    if not isinstance(tensor, str) or not tensor:
-        return f"vendor kernel {name!r} has no tensor-pipe metric"
-    if not is_count(value):
-        return f"vendor kernel {name!r} has no {tensor} value"
-    if value != 0:
-        return f"vendor kernel {name!r} used the tensor pipe: {tensor} = {value}"
-    return None
+    if not isinstance(tensors, dict) or not tensors:
+        return f"vendor kernel {name!r} has no tensor-pipe metrics"
+    missing = sorted(str(metric) for metric, value in tensors.items() if not is_count(value))
+    if missing:
+        return f"vendor kernel {name!r} has no value for {missing}"
+    used = {metric: value for metric, value in tensors.items() if value != 0}
+    return f"vendor kernel {name!r} used the tensor pipe: {used}" if used else None
 
 
-def sidecar_problems(doc: object) -> list[str]:
+def commit_of(doc: object) -> object:
+    source = doc.get("source") if isinstance(doc, dict) else None
+    return source.get("commit") if isinstance(source, dict) else None
+
+
+def sidecar_problems(doc: object, bytes_doc: object) -> list[str]:
     vendor = doc.get("vendorKernel") if isinstance(doc, dict) else None
     if not isinstance(vendor, dict) or set(vendor) != VENDOR_KEYS:
         return [f"vendorKernel keys must be {sorted(VENDOR_KEYS)}"]
-    problem = vendor_kernel_problem(vendor["name"], vendor["tensorMetric"], vendor["tensorValue"])
-    return [problem] if problem else []
+    problem = vendor_kernel_problem(vendor["name"], vendor["tensorMetrics"])
+    found = [problem] if problem else []
+    if commit_of(doc) is None or commit_of(doc) != commit_of(bytes_doc):
+        found.append("bytes.json and a10-runs.json must come from the same commit")
+    return found
 
 
 def shape_problems(machine: dict[str, object], where: str) -> list[str]:
@@ -155,6 +164,8 @@ def machine_problems(machine: object, kernel_ids: frozenset[str], where: str) ->
     if not isinstance(machine, dict) or set(machine) != MACHINE_KEYS:
         return [f"{where}: machine keys must be {sorted(MACHINE_KEYS)}"]
     found = [] if machine["id"] in MACHINE_IDS else [f"{where}: unknown machine id"]
+    if machine["n"] != PUBLICATION_N:
+        found.append(f"{where}: n must be {PUBLICATION_N}")
     runs = machine["runs"]
     if not isinstance(runs, int) or runs < MIN_RUNS:
         found.append(f"{where}: needs at least {MIN_RUNS} runs")
@@ -206,8 +217,8 @@ def bytes_problems(doc: object) -> list[str]:
         found.append(f"source keys must be {sorted(SOURCE_KEYS)}")
     if doc["gpu"] != A10_NAME:
         found.append(f"gpu must be {A10_NAME!r}")
-    if not isinstance(doc["n"], int) or doc["n"] <= 0:
-        found.append("n must be a positive integer")
+    if doc["n"] != PUBLICATION_N:
+        found.append(f"n must be {PUBLICATION_N}")
     found += [problem for problem in [vendor_name_problem(doc["vendorKernel"])] if problem]
     rows = doc["rows"] if isinstance(doc["rows"], list) else []
     ids = [row.get("kernel") if isinstance(row, dict) else None for row in rows]
