@@ -1,13 +1,21 @@
 from typing import TypedDict
 
 VERSION = 1
+PUBLICATION_N = 4096
 SPEED_KERNELS = frozenset({"naive", "tile32", "reg4x4", "vendor"})
 CHALLENGE_KERNELS = frozenset({"reg8x8"})
-MACHINE_IDS = frozenset({"m3-pro", "a10g"})
+MACHINE_IDS = frozenset({"m3-pro", "a10"})
+A10_NAME = "NVIDIA A10"
 MIN_RUNS = 3
 SOURCE_KEYS = {"commit", "code"}
 MACHINE_KEYS = {"id", "name", "n", "runs", "conditions", "versions", "kernels"}
 KERNEL_KEYS = {"kernel", "ratioMin", "ratioMax", "gflopsThisRun"}
+BYTES_KEYS = {"version", "source", "gpu", "n", "vendorKernel", "rows"}
+BYTES_ROW_KEYS = {"kernel", "globalLoadRequests", "sharedLoads", "l2Bytes", "dramReadBytes"}
+VENDOR_KEYS = {"name", "tensorMetrics"}
+TENSOR_NAME_PARTS = ("tensorop", "tf32", "hmma", "s1688", "s16816", "s884")
+
+Condition = str | int | float | bool
 
 
 class Source(TypedDict):
@@ -27,7 +35,7 @@ class Machine(TypedDict):
     name: str
     n: int
     runs: int
-    conditions: dict[str, object]
+    conditions: dict[str, Condition]
     versions: dict[str, str]
     kernels: list[KernelRow]
 
@@ -36,6 +44,23 @@ class SpeedsDoc(TypedDict):
     version: int
     source: Source
     machines: list[Machine]
+
+
+class BytesRow(TypedDict):
+    kernel: str
+    globalLoadRequests: int
+    sharedLoads: int
+    l2Bytes: int
+    dramReadBytes: int
+
+
+class BytesDoc(TypedDict):
+    version: int
+    source: Source
+    gpu: str
+    n: int
+    vendorKernel: str
+    rows: list[BytesRow]
 
 
 def is_number(value: object) -> bool:
@@ -54,10 +79,77 @@ def kernel_problems(row: object, where: str) -> list[str]:
     return []
 
 
+def is_count(value: object) -> bool:
+    return isinstance(value, int | float) and not isinstance(value, bool) and value >= 0
+
+
+def vendor_name_problem(name: object) -> str | None:
+    if not isinstance(name, str) or not name:
+        return "vendor kernel name must be a non-empty string"
+    denied = [part for part in TENSOR_NAME_PARTS if part in name.lower()]
+    return f"vendor kernel {name!r} has {denied[0]!r} in its name" if denied else None
+
+
+def vendor_kernel_problem(name: object, tensors: object) -> str | None:
+    problem = vendor_name_problem(name)
+    if problem:
+        return problem
+    if not isinstance(tensors, dict) or not tensors:
+        return f"vendor kernel {name!r} has no tensor-pipe metrics"
+    missing = sorted(str(metric) for metric, value in tensors.items() if not is_count(value))
+    if missing:
+        return f"vendor kernel {name!r} has no value for {missing}"
+    used = {metric: value for metric, value in tensors.items() if value != 0}
+    return f"vendor kernel {name!r} used the tensor pipe: {used}" if used else None
+
+
+def commit_of(doc: object) -> object:
+    source = doc.get("source") if isinstance(doc, dict) else None
+    return source.get("commit") if isinstance(source, dict) else None
+
+
+def sidecar_problems(doc: object, bytes_doc: object) -> list[str]:
+    vendor = doc.get("vendorKernel") if isinstance(doc, dict) else None
+    if not isinstance(vendor, dict) or set(vendor) != VENDOR_KEYS:
+        return [f"vendorKernel keys must be {sorted(VENDOR_KEYS)}"]
+    problem = vendor_kernel_problem(vendor["name"], vendor["tensorMetrics"])
+    found = [problem] if problem else []
+    if commit_of(doc) is None or commit_of(doc) != commit_of(bytes_doc):
+        found.append("bytes.json and a10-runs.json must come from the same commit")
+    return found
+
+
+def shape_problems(machine: dict[str, object], where: str) -> list[str]:
+    conditions, versions = machine["conditions"], machine["versions"]
+    if not isinstance(conditions, dict) or not isinstance(versions, dict):
+        return [f"{where}: conditions and versions must be objects"]
+    found = [
+        f"{where}: conditions.{key} must be a string, number or boolean"
+        for key, value in conditions.items()
+        if not isinstance(value, Condition)
+    ]
+    found += [
+        f"{where}: versions.{key} must be a non-empty string"
+        for key, value in versions.items()
+        if not isinstance(value, str) or not value
+    ]
+    if "commit" not in versions:
+        found.append(f"{where}: versions.commit is missing")
+    return found
+
+
+def a10_problems(machine: dict[str, object], where: str) -> list[str]:
+    found = [] if machine["name"] == A10_NAME else [f"{where}: name must be {A10_NAME!r}"]
+    conditions = machine["conditions"]
+    if isinstance(conditions, dict) and conditions.get("publication") is not True:
+        found.append(f"{where}: conditions.publication must be true")
+    return found
+
+
 def mac_problems(machine: dict[str, object], where: str) -> list[str]:
     conditions = machine["conditions"]
     if not isinstance(conditions, dict):
-        return [f"{where}: conditions must be an object"]
+        return []
     found = []
     if conditions.get("acPower") is not True:
         found.append(f"{where}: conditions.acPower must be true")
@@ -72,6 +164,8 @@ def machine_problems(machine: object, kernel_ids: frozenset[str], where: str) ->
     if not isinstance(machine, dict) or set(machine) != MACHINE_KEYS:
         return [f"{where}: machine keys must be {sorted(MACHINE_KEYS)}"]
     found = [] if machine["id"] in MACHINE_IDS else [f"{where}: unknown machine id"]
+    if machine["n"] != PUBLICATION_N:
+        found.append(f"{where}: n must be {PUBLICATION_N}")
     runs = machine["runs"]
     if not isinstance(runs, int) or runs < MIN_RUNS:
         found.append(f"{where}: needs at least {MIN_RUNS} runs")
@@ -81,8 +175,11 @@ def machine_problems(machine: object, kernel_ids: frozenset[str], where: str) ->
         found.append(f"{where}: kernels must be {sorted(kernel_ids)}, got {ids}")
     for kernel, row in zip(ids, rows, strict=True):
         found += kernel_problems(row, f"{where}.{kernel}")
+    found += shape_problems(machine, where)
     if machine["id"] == "m3-pro":
         found += mac_problems(machine, where)
+    if machine["id"] == "a10":
+        found += a10_problems(machine, where)
     return found
 
 
@@ -101,4 +198,32 @@ def problems(doc: object, kernel_ids: frozenset[str]) -> list[str]:
         found.append("machine ids must be unique")
     for index, machine in enumerate(machines):
         found += machine_problems(machine, kernel_ids, f"machines[{index}]")
+    return found
+
+
+def bytes_row_problems(row: object, where: str) -> list[str]:
+    if not isinstance(row, dict) or set(row) != BYTES_ROW_KEYS:
+        return [f"{where}: row keys must be {sorted(BYTES_ROW_KEYS)}"]
+    counts = BYTES_ROW_KEYS - {"kernel"}
+    return [f"{where}.{key} must be a count" for key in sorted(counts) if not is_count(row[key])]
+
+
+def bytes_problems(doc: object) -> list[str]:
+    if not isinstance(doc, dict) or set(doc) != BYTES_KEYS:
+        return [f"document keys must be {sorted(BYTES_KEYS)}"]
+    found = [] if doc["version"] == VERSION else [f"version must be {VERSION}"]
+    source = doc["source"]
+    if not isinstance(source, dict) or set(source) != SOURCE_KEYS:
+        found.append(f"source keys must be {sorted(SOURCE_KEYS)}")
+    if doc["gpu"] != A10_NAME:
+        found.append(f"gpu must be {A10_NAME!r}")
+    if doc["n"] != PUBLICATION_N:
+        found.append(f"n must be {PUBLICATION_N}")
+    found += [problem for problem in [vendor_name_problem(doc["vendorKernel"])] if problem]
+    rows = doc["rows"] if isinstance(doc["rows"], list) else []
+    ids = [row.get("kernel") if isinstance(row, dict) else None for row in rows]
+    if sorted(map(str, ids)) != sorted(SPEED_KERNELS):
+        found.append(f"rows must be {sorted(SPEED_KERNELS)}, got {ids}")
+    for kernel, row in zip(ids, rows, strict=True):
+        found += bytes_row_problems(row, f"rows.{kernel}")
     return found
