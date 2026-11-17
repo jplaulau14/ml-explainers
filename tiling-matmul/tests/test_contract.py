@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from tiling_explainer.conditions import PowerState
-from tiling_explainer.contract import CHALLENGE_KERNELS, SPEED_KERNELS, problems
+from tiling_explainer.contract import CHALLENGE_KERNELS, SPEED_KERNELS, bytes_problems, problems
 from tiling_explainer.driver import ProcessRecord, build_machine
 
 OUT = Path(__file__).resolve().parents[1] / "out"
@@ -34,6 +34,13 @@ def test_committed_output_matches_the_contract(name: str, kernels: frozenset[str
     assert problems(json.loads(path.read_text()), kernels) == []
 
 
+def test_committed_bytes_matches_the_contract() -> None:
+    path = OUT / "bytes.json"
+    if not path.exists():
+        pytest.skip("no committed out/bytes.json yet")
+    assert bytes_problems(json.loads(path.read_text())) == []
+
+
 @pytest.mark.parametrize(("name", "kernels"), FILES)
 def test_harness_output_matches_the_contract(name: str, kernels: frozenset[str]) -> None:
     doc = document(kernels, [record(1.0), record(1.05), record(0.97)])
@@ -48,3 +55,17 @@ def test_mac_run_with_a_battery_reading_fails_the_contract() -> None:
 def test_mac_run_with_two_processes_fails_the_contract() -> None:
     doc = document(SPEED_KERNELS, [record(1.0), record(1.0)])
     assert problems(doc, SPEED_KERNELS) == ["machines[0]: needs at least 3 runs"]
+
+
+def test_nested_condition_fails_the_contract() -> None:
+    doc = document(SPEED_KERNELS, [record(1.0), record(1.0), record(1.0)])
+    doc["machines"][0]["conditions"]["timing"] = {"samples": 10}
+    assert problems(doc, SPEED_KERNELS) == [
+        "machines[0]: conditions.timing must be a string, number or boolean"
+    ]
+
+
+def test_version_that_is_not_a_string_fails_the_contract() -> None:
+    doc = document(SPEED_KERNELS, [record(1.0), record(1.0), record(1.0)])
+    doc["machines"][0]["versions"]["cuda"] = 12090
+    assert problems(doc, SPEED_KERNELS) == ["machines[0]: versions.cuda must be a non-empty string"]
