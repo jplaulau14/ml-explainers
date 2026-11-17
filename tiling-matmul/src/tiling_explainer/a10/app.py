@@ -20,6 +20,7 @@ CUDA_IMAGE = (
 UV_VERSION = "0.13.1"
 CALL_TIMEOUT_SECONDS = 900
 COMMAND_TIMEOUT_SECONDS = 600
+REGIONS = ["us-east"]
 
 image = (
     modal.Image.from_registry(CUDA_IMAGE, add_python="3.12")
@@ -84,13 +85,13 @@ def container() -> str:
     return os.environ.get("MODAL_TASK_ID", "unknown")
 
 
-@app.function(gpu="A10", timeout=CALL_TIMEOUT_SECONDS, single_use_containers=True)
+@app.function(gpu="A10", region=REGIONS, timeout=CALL_TIMEOUT_SECONDS, single_use_containers=True)
 def timing_call(n: int, commit: str) -> Call:
     result = guarded(run_text(SMI_QUERY), lambda reading: time_on_a10(reading, n, commit))
     return {"container": container(), **result}
 
 
-@app.function(gpu="A10", timeout=CALL_TIMEOUT_SECONDS, single_use_containers=True)
+@app.function(gpu="A10", region=REGIONS, timeout=CALL_TIMEOUT_SECONDS, single_use_containers=True)
 def profile_call(n: int, commit: str) -> Call:
     result = guarded(run_text(SMI_QUERY), lambda reading: profile_on_a10(reading, n, commit))
     return {"container": container(), **result}
