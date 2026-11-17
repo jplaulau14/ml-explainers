@@ -44,15 +44,15 @@ The run takes three options.
 - `--allow-battery` skips the checks for a test run.
 
 Only an n = 4096 run without `--allow-battery` is checked and writes to `out/`.
-Every other run writes to `runs/` with `publication` set to false.
+Every other run writes to `runs/`.
 
 `uv run pytest` checks the kernels against `mx.matmul`, the counting and ratio maths, the committed files and their recorded commit.
-The kernel tests skip on Linux, where MLX has no Metal backend.
+The test that compares each kernel with `mx.matmul` skips on Linux, where MLX has no Metal backend; the size-rejection test still runs.
 
 ## What you get
 
 - `out/speeds.json`: ratios to naive for `naive`, `tile32`, `reg4x4` and `vendor`, one entry per machine.
-- `out/challenge.json`: the same fields for `reg8x8`.
+- `out/challenge.json`: the entry for `reg8x8`.
 - `out/mac-runs.json`: every process's times, errors against `mx.matmul`, ratios to naive and to `mx.matmul`, and power readings.
 
 `speeds.json` and `challenge.json` carry the same fields and differ only in the kernels they list.
@@ -67,10 +67,11 @@ The kernel tests skip on Linux, where MLX has no Metal backend.
 | `machines[].runs` | number of processes |
 | `machines[].conditions` | `acPower`, `lowPowerMode`, `publication`, `dtype` (`float32`) and `timing` (`warmups`, `launchesPerSample`, `samples`) |
 | `machines[].versions` | commit, macOS, MLX and Python versions |
+| `kernels[].kernel` | the kernel id from the first table |
 | `kernels[].ratioMin`, `kernels[].ratioMax` | lowest and highest per-process ratio, naive time / kernel time |
 | `kernels[].gflopsThisRun` | median over the processes of 2n³ / time |
 
-The tests accept the machine ids `m3-pro` and `a10g` only.
+The validator in `contract.py` accepts the machine ids `m3-pro` and `a10g`; `a10g` is for an NVIDIA A10G entry, which nothing in this folder writes yet.
 A rerun replaces only the entry with the same machine id and keeps the others.
 
 Each process makes A and B with `mx.random.normal` and seed 0 and checks every kernel against `mx.matmul` with `allclose(rtol=1e-4, atol=1e-3)` before timing it.
@@ -93,7 +94,7 @@ Pending the publication run.
 
 - The kernel tests compare with the same tolerance as the harness and do not test exact equality, because summing k in a different order changes fp32 results in the last digits.
 - The Metal `tile32` has no `#pragma unroll` on its inner loop; the CUDA one does.
-- `reg8x8` is the essay's reader exercise. Change its block shape in `metal.py`, rerun, and compare its row in `challenge.json` with `reg4x4`.
+- `reg8x8` is the essay's reader exercise. Change its block shape in `metal.py` and run `uv run tiling-explainer mac --allow-battery`, because a checked run refuses to start with uncommitted changes. Then compare `reg8x8` in `runs/challenge.json` with `reg4x4` in `runs/speeds.json`.
 - The harness records the power state but cannot control clocks or background load.
 - `tests/test_provenance.py` accepts a recorded commit that is the last commit touching `out/` or that commit's parent, so a rerun that edits `out/` still passes.
 
