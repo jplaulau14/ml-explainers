@@ -1,0 +1,870 @@
+{
+  "version": 1,
+  "source": {
+    "commit": "6c06665c9b7f54d7a1f923c15eb9a06ef48c059e",
+    "code": "https://github.com/jplaulau14/ml-explainers/tree/6c06665c9b7f54d7a1f923c15eb9a06ef48c059e/tiling-matmul"
+  },
+  "n": 4096,
+  "publication": true,
+  "distinctGpus": 3,
+  "vendorKernel": {
+    "name": "void cutlass::Kernel2<cutlass_80_simt_sgemm_128x64_8x5_nn_align1>(T1::Params)",
+    "tensorMetrics": {
+      "sm__inst_executed_pipe_tensor.sum": 0.0,
+      "sm__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+      "sm__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+      "sm__pipe_tensor_cycles_active.sum": 0.0,
+      "sm__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+      "sm__pipe_tensor_op_imma_cycles_active.sum": 0.0,
+      "smsp__inst_executed_pipe_tensor.sum": 0.0,
+      "smsp__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+      "smsp__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+      "smsp__pipe_tensor_cycles_active.sum": 0.0,
+      "smsp__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+      "smsp__pipe_tensor_op_imma_cycles_active.sum": 0.0
+    }
+  },
+  "calls": [
+    {
+      "container": "ta-01M7M17RQJ5JDENWWQ23D09SQR",
+      "gpuUuid": "GPU-18e68fae-30c8-9bcc-518d-6645ddd111c5",
+      "code": {
+        "files": [
+          "__init__.py",
+          "a10/__init__.py",
+          "a10/app.py",
+          "a10/bench.py",
+          "a10/gather.py",
+          "a10/ncu.py",
+          "a10/outputs.py",
+          "a10/run.py",
+          "a10/spec.py",
+          "a10/target.py",
+          "a10/upload.py",
+          "cli.py",
+          "conditions.py",
+          "contract.py",
+          "counts.py",
+          "cuda.py",
+          "driver.py",
+          "harness.py",
+          "metal.py",
+          "provenance.py",
+          "ratios.py",
+          "shapes.py"
+        ],
+        "digest": "f130099a893d0a78a8fb687bf86353976feba44f8a37f2b2504af0ce6e1d34cd"
+      },
+      "gpu": {
+        "name": "NVIDIA A10",
+        "driver": "610.57.04",
+        "max_sm_clock_mhz": 1695,
+        "power_limit_w": 150.0,
+        "uuid": "GPU-18e68fae-30c8-9bcc-518d-6645ddd111c5",
+        "smCount": 72,
+        "l2Bytes": 6291456
+      },
+      "software": {
+        "cudaRuntime": "12.9",
+        "cudaDriver": "13.3",
+        "cupy": "13.6.0",
+        "numpy": "2.5.5",
+        "python": "3.12.1",
+        "cupyTf32": "0",
+        "modal": "1.6.4"
+      },
+      "kernels": {
+        "naive": {
+          "ms": 95.963134765625,
+          "samplesMs": [
+            95.963134765625,
+            95.22176361083984,
+            95.15519714355469,
+            95.14070129394531,
+            95.14189147949219,
+            95.30265808105469,
+            104.06502532958984,
+            97.27693176269531,
+            96.04608154296875,
+            96.08704376220703
+          ],
+          "maxAbsErr": 0.0
+        },
+        "tile32": {
+          "ms": 66.2507553100586,
+          "samplesMs": [
+            66.25494384765625,
+            66.2138900756836,
+            66.19750213623047,
+            66.2138900756836,
+            66.2456283569336,
+            66.24358367919922,
+            66.25373077392578,
+            66.2507553100586,
+            67.4170913696289,
+            71.36051177978516
+          ],
+          "maxAbsErr": 0.0
+        },
+        "reg4x4": {
+          "ms": 20.414464950561523,
+          "samplesMs": [
+            21.019615173339844,
+            20.712448120117188,
+            20.414464950561523,
+            20.316160202026367,
+            20.317184448242188,
+            20.523008346557617,
+            20.397056579589844,
+            20.321279525756836,
+            20.322303771972656,
+            20.574207305908203
+          ],
+          "maxAbsErr": 0.0
+        },
+        "reg8x8": {
+          "ms": 13.06931209564209,
+          "samplesMs": [
+            12.825599670410156,
+            13.06009578704834,
+            13.05395221710205,
+            13.07852840423584,
+            13.05190372467041,
+            13.06931209564209,
+            13.163519859313965,
+            13.165568351745605,
+            13.065343856811523,
+            13.0764799118042
+          ],
+          "maxAbsErr": 0.0
+        },
+        "vendor": {
+          "ms": 10.970111846923828,
+          "samplesMs": [
+            10.430463790893555,
+            10.974207878112793,
+            10.966015815734863,
+            10.973183631896973,
+            10.969087600708008,
+            10.97225570678711,
+            10.969056129455566,
+            10.970111846923828,
+            10.977248191833496,
+            10.968064308166504
+          ],
+          "maxAbsErr": 0.0
+        }
+      },
+      "attributes": {
+        "naive": {
+          "registers": 40,
+          "localBytes": 0,
+          "sharedBytes": 0
+        },
+        "tile32": {
+          "registers": 38,
+          "localBytes": 0,
+          "sharedBytes": 8192
+        },
+        "reg4x4": {
+          "registers": 64,
+          "localBytes": 0,
+          "sharedBytes": 8192
+        },
+        "reg8x8": {
+          "registers": 118,
+          "localBytes": 0,
+          "sharedBytes": 8192
+        }
+      },
+      "ratiosToNaive": {
+        "naive": 1.0,
+        "tile32": 1.4484836333791244,
+        "reg4x4": 4.700742096254912,
+        "reg8x8": 7.34263089467605,
+        "vendor": 8.74768973230974
+      },
+      "ratiosToVendor": {
+        "naive": 0.11431589717985575,
+        "tile32": 0.16558470610007187,
+        "reg4x4": 0.537369550144496,
+        "reg8x8": 0.8393794383854195,
+        "vendor": 1.0
+      }
+    },
+    {
+      "container": "ta-01M7M17WMP4C94ZKHR0075QK6R",
+      "gpuUuid": "GPU-c30bd073-8896-3f88-385d-e3a12e27e39f",
+      "code": {
+        "files": [
+          "__init__.py",
+          "a10/__init__.py",
+          "a10/app.py",
+          "a10/bench.py",
+          "a10/gather.py",
+          "a10/ncu.py",
+          "a10/outputs.py",
+          "a10/run.py",
+          "a10/spec.py",
+          "a10/target.py",
+          "a10/upload.py",
+          "cli.py",
+          "conditions.py",
+          "contract.py",
+          "counts.py",
+          "cuda.py",
+          "driver.py",
+          "harness.py",
+          "metal.py",
+          "provenance.py",
+          "ratios.py",
+          "shapes.py"
+        ],
+        "digest": "f130099a893d0a78a8fb687bf86353976feba44f8a37f2b2504af0ce6e1d34cd"
+      },
+      "gpu": {
+        "name": "NVIDIA A10",
+        "driver": "610.57.04",
+        "max_sm_clock_mhz": 1695,
+        "power_limit_w": 150.0,
+        "uuid": "GPU-c30bd073-8896-3f88-385d-e3a12e27e39f",
+        "smCount": 72,
+        "l2Bytes": 6291456
+      },
+      "software": {
+        "cudaRuntime": "12.9",
+        "cudaDriver": "13.3",
+        "cupy": "13.6.0",
+        "numpy": "2.5.5",
+        "python": "3.12.1",
+        "cupyTf32": "0",
+        "modal": "1.6.4"
+      },
+      "kernels": {
+        "naive": {
+          "ms": 93.36729431152344,
+          "samplesMs": [
+            93.36729431152344,
+            93.35807800292969,
+            93.36319732666016,
+            93.35807800292969,
+            93.35910034179688,
+            93.35603332519531,
+            102.4368667602539,
+            97.98041534423828,
+            95.05996704101562,
+            94.18649291992188
+          ],
+          "maxAbsErr": 0.0
+        },
+        "tile32": {
+          "ms": 65.17759704589844,
+          "samplesMs": [
+            65.11711883544922,
+            65.21135711669922,
+            65.19296264648438,
+            65.17759704589844,
+            65.15814208984375,
+            65.14585876464844,
+            65.13970947265625,
+            65.1694107055664,
+            65.22978973388672,
+            67.94767761230469
+          ],
+          "maxAbsErr": 0.0
+        },
+        "reg4x4": {
+          "ms": 19.780607223510742,
+          "samplesMs": [
+            20.514816284179688,
+            20.22502326965332,
+            19.941312789916992,
+            19.775487899780273,
+            19.775487899780273,
+            19.781631469726562,
+            19.779584884643555,
+            19.780607223510742,
+            19.779584884643555,
+            19.768320083618164
+          ],
+          "maxAbsErr": 0.0
+        },
+        "reg8x8": {
+          "ms": 12.938240051269531,
+          "samplesMs": [
+            12.222463607788086,
+            12.863424301147461,
+            13.213695526123047,
+            13.234175682067871,
+            13.127679824829102,
+            12.999679565429688,
+            12.938240051269531,
+            12.86451244354248,
+            12.782591819763184,
+            12.759039878845215
+          ],
+          "maxAbsErr": 0.0
+        },
+        "vendor": {
+          "ms": 10.487808227539062,
+          "samplesMs": [
+            10.331135749816895,
+            10.480640411376953,
+            10.630144119262695,
+            10.637311935424805,
+            10.63526439666748,
+            10.597375869750977,
+            10.476544380187988,
+            10.472448348999023,
+            10.472448348999023,
+            10.487808227539062
+          ],
+          "maxAbsErr": 0.0
+        }
+      },
+      "attributes": {
+        "naive": {
+          "registers": 40,
+          "localBytes": 0,
+          "sharedBytes": 0
+        },
+        "tile32": {
+          "registers": 38,
+          "localBytes": 0,
+          "sharedBytes": 8192
+        },
+        "reg4x4": {
+          "registers": 64,
+          "localBytes": 0,
+          "sharedBytes": 8192
+        },
+        "reg8x8": {
+          "registers": 118,
+          "localBytes": 0,
+          "sharedBytes": 8192
+        }
+      },
+      "ratiosToNaive": {
+        "naive": 1.0,
+        "tile32": 1.4325059306156018,
+        "reg4x4": 4.720142979258461,
+        "reg8x8": 7.216382903821762,
+        "vendor": 8.902460102803753
+      },
+      "ratiosToVendor": {
+        "naive": 0.11232850116172481,
+        "tile32": 0.1609112440913323,
+        "reg4x4": 0.5302065861291413,
+        "reg8x8": 0.8106054753953937,
+        "vendor": 1.0
+      }
+    },
+    {
+      "container": "ta-01M7M1831RKQ57AZS8ECWMWKXR",
+      "gpuUuid": "GPU-ba2f28a5-3199-b966-a377-938e5ad4103e",
+      "code": {
+        "files": [
+          "__init__.py",
+          "a10/__init__.py",
+          "a10/app.py",
+          "a10/bench.py",
+          "a10/gather.py",
+          "a10/ncu.py",
+          "a10/outputs.py",
+          "a10/run.py",
+          "a10/spec.py",
+          "a10/target.py",
+          "a10/upload.py",
+          "cli.py",
+          "conditions.py",
+          "contract.py",
+          "counts.py",
+          "cuda.py",
+          "driver.py",
+          "harness.py",
+          "metal.py",
+          "provenance.py",
+          "ratios.py",
+          "shapes.py"
+        ],
+        "digest": "f130099a893d0a78a8fb687bf86353976feba44f8a37f2b2504af0ce6e1d34cd"
+      },
+      "gpu": {
+        "name": "NVIDIA A10",
+        "driver": "610.57.04",
+        "max_sm_clock_mhz": 1695,
+        "power_limit_w": 150.0,
+        "uuid": "GPU-ba2f28a5-3199-b966-a377-938e5ad4103e",
+        "smCount": 72,
+        "l2Bytes": 6291456
+      },
+      "software": {
+        "cudaRuntime": "12.9",
+        "cudaDriver": "13.3",
+        "cupy": "13.6.0",
+        "numpy": "2.5.5",
+        "python": "3.12.1",
+        "cupyTf32": "0",
+        "modal": "1.6.4"
+      },
+      "kernels": {
+        "naive": {
+          "ms": 93.47583770751953,
+          "samplesMs": [
+            93.43897247314453,
+            93.34886169433594,
+            93.36831665039062,
+            93.36524963378906,
+            93.34783935546875,
+            93.47583770751953,
+            101.8787841796875,
+            95.2279052734375,
+            94.20185852050781,
+            94.22438049316406
+          ],
+          "maxAbsErr": 0.0
+        },
+        "tile32": {
+          "ms": 65.05165100097656,
+          "samplesMs": [
+            65.05462646484375,
+            65.05677032470703,
+            65.05165100097656,
+            65.04959869384766,
+            65.05165100097656,
+            65.01580810546875,
+            65.09343719482422,
+            65.03526306152344,
+            65.04959869384766,
+            66.39103698730469
+          ],
+          "maxAbsErr": 0.0
+        },
+        "reg4x4": {
+          "ms": 19.789823532104492,
+          "samplesMs": [
+            20.371456146240234,
+            20.24028778076172,
+            19.960832595825195,
+            19.778560638427734,
+            19.778560638427734,
+            19.786752700805664,
+            19.777536392211914,
+            19.784704208374023,
+            19.790847778320312,
+            19.789823532104492
+          ],
+          "maxAbsErr": 0.0
+        },
+        "reg8x8": {
+          "ms": 13.080575942993164,
+          "samplesMs": [
+            12.591103553771973,
+            13.231103897094727,
+            13.245439529418945,
+            13.230079650878906,
+            13.238271713256836,
+            13.080575942993164,
+            12.984319686889648,
+            12.923904418945312,
+            12.951552391052246,
+            12.862624168395996
+          ],
+          "maxAbsErr": 0.0
+        },
+        "vendor": {
+          "ms": 10.802176475524902,
+          "samplesMs": [
+            10.877951622009277,
+            10.833919525146484,
+            10.815360069274902,
+            10.812383651733398,
+            10.802176475524902,
+            10.663935661315918,
+            10.638336181640625,
+            10.629119873046875,
+            10.638239860534668,
+            10.64742374420166
+          ],
+          "maxAbsErr": 0.0
+        }
+      },
+      "attributes": {
+        "naive": {
+          "registers": 40,
+          "localBytes": 0,
+          "sharedBytes": 0
+        },
+        "tile32": {
+          "registers": 38,
+          "localBytes": 0,
+          "sharedBytes": 8192
+        },
+        "reg4x4": {
+          "registers": 64,
+          "localBytes": 0,
+          "sharedBytes": 8192
+        },
+        "reg8x8": {
+          "registers": 118,
+          "localBytes": 0,
+          "sharedBytes": 8192
+        }
+      },
+      "ratiosToNaive": {
+        "naive": 1.0,
+        "tile32": 1.4369479677943342,
+        "reg4x4": 4.723429572571793,
+        "reg8x8": 7.146156110778247,
+        "vendor": 8.653426271947415
+      },
+      "ratiosToVendor": {
+        "naive": 0.11556116254688495,
+        "tile32": 0.16605537767769704,
+        "reg4x4": 0.5458450126147323,
+        "reg8x8": 0.8258181079030602,
+        "vendor": 1.0
+      }
+    }
+  ],
+  "profile": {
+    "container": "ta-01M7M17RW1MJF0CWM9QDQPX4HR",
+    "gpuUuid": "GPU-a0516502-4256-9637-ba74-281ced6f62cb",
+    "code": {
+      "files": [
+        "__init__.py",
+        "a10/__init__.py",
+        "a10/app.py",
+        "a10/bench.py",
+        "a10/gather.py",
+        "a10/ncu.py",
+        "a10/outputs.py",
+        "a10/run.py",
+        "a10/spec.py",
+        "a10/target.py",
+        "a10/upload.py",
+        "cli.py",
+        "conditions.py",
+        "contract.py",
+        "counts.py",
+        "cuda.py",
+        "driver.py",
+        "harness.py",
+        "metal.py",
+        "provenance.py",
+        "ratios.py",
+        "shapes.py"
+      ],
+      "digest": "f130099a893d0a78a8fb687bf86353976feba44f8a37f2b2504af0ce6e1d34cd"
+    },
+    "ncu": "Version 2025.2.0.0 (build 35613519) (public-release)",
+    "command": "ncu --clock-control none --kernel-name-base demangled -k regex:naive|tile32|reg4x4|gemm|Kernel2 --metrics l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum,lts__t_bytes.sum,dram__bytes_read.sum,smsp__inst_executed_op_shared_ld.sum,l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum,l1tex__t_sector_hit_rate.pct,gpu__time_duration.sum,sm__inst_executed_pipe_tensor.sum,sm__inst_executed_pipe_tensor_op_hmma.sum,sm__inst_executed_pipe_tensor_op_imma.sum,sm__pipe_tensor_cycles_active.sum,sm__pipe_tensor_op_hmma_cycles_active.sum,sm__pipe_tensor_op_imma_cycles_active.sum,smsp__inst_executed_pipe_tensor.sum,smsp__inst_executed_pipe_tensor_op_hmma.sum,smsp__inst_executed_pipe_tensor_op_imma.sum,smsp__pipe_tensor_cycles_active.sum,smsp__pipe_tensor_op_hmma_cycles_active.sum,smsp__pipe_tensor_op_imma_cycles_active.sum --print-units base --csv /.uv/.venv/bin/python -m tiling_explainer.a10.target 4096",
+    "tensorMetrics": [
+      "sm__inst_executed_pipe_tensor.sum",
+      "sm__inst_executed_pipe_tensor_op_hmma.sum",
+      "sm__inst_executed_pipe_tensor_op_imma.sum",
+      "sm__pipe_tensor_cycles_active.sum",
+      "sm__pipe_tensor_op_hmma_cycles_active.sum",
+      "sm__pipe_tensor_op_imma_cycles_active.sum",
+      "smsp__inst_executed_pipe_tensor.sum",
+      "smsp__inst_executed_pipe_tensor_op_hmma.sum",
+      "smsp__inst_executed_pipe_tensor_op_imma.sum",
+      "smsp__pipe_tensor_cycles_active.sum",
+      "smsp__pipe_tensor_op_hmma_cycles_active.sum",
+      "smsp__pipe_tensor_op_imma_cycles_active.sum"
+    ],
+    "gpu": {
+      "name": "NVIDIA A10",
+      "driver": "610.57.04",
+      "max_sm_clock_mhz": 1695,
+      "power_limit_w": 150.0,
+      "uuid": "GPU-a0516502-4256-9637-ba74-281ced6f62cb",
+      "smCount": 72,
+      "l2Bytes": 6291456
+    },
+    "software": {
+      "cudaRuntime": "12.9",
+      "cudaDriver": "13.3",
+      "cupy": "13.6.0",
+      "numpy": "2.5.5",
+      "python": "3.12.1",
+      "cupyTf32": "0",
+      "modal": "1.6.4"
+    },
+    "metricsQuery": "Device NVIDIA A10 (GA102)\nMetric Name                                                                 Metric Type     Metric Unit     Metric Description                                                    \nsm__inst_executed_pipe_tensor                                               Counter         inst            # of warp instructions executed by tensor pipe                        \nsm__inst_executed_pipe_tensor_op_hmma                                       Counter         inst            # of warp instructions executed by tensor pipe (HMMA ops)             \nsm__inst_executed_pipe_tensor_op_imma                                       Counter         inst            # of warp instructions executed by tensor pipe (IMMA/BMMA ops)        \nsm__pipe_tensor_cycles_active                                                 Counter         cycle           # of cycles where tensor pipe was active                              \nsm__pipe_tensor_op_hmma_cycles_active                                         Counter         cycle           # of cycles where tensor pipe was active (HMMA ops)                   \nsm__pipe_tensor_op_imma_cycles_active                                         Counter         cycle           # of cycles where tensor pipe was active (IMMA/BMMA ops)              \nsmsp__average_inst_executed_pipe_tensor_op_hmma_per_warp                    Ratio           inst/warp       average # of instructions executed by pipe tensor_op_hmma per warp    \nsmsp__average_inst_executed_pipe_tensor_op_imma_per_warp                    Ratio           inst/warp       average # of instructions executed by pipe tensor_op_imma per warp    \nsmsp__inst_executed_pipe_tensor                                               Counter         inst            # of warp instructions executed by tensor pipe                        \nsmsp__inst_executed_pipe_tensor_op_hmma                                       Counter         inst            # of warp instructions executed by tensor pipe (HMMA ops)             \nsmsp__inst_executed_pipe_tensor_op_imma                                       Counter         inst            # of warp instructions executed by tensor pipe (IMMA/BMMA ops)        \nsmsp__pipe_tensor_cycles_active                                               Counter         cycle           # of cycles where tensor pipe was active                              \nsmsp__pipe_tensor_op_hmma_cycles_active                                       Counter         cycle           # of cycles where tensor pipe was active (HMMA ops)                   \nsmsp__pipe_tensor_op_imma_cycles_active                                       Counter         cycle           # of cycles where tensor pipe was active (IMMA/BMMA ops)              ",
+    "measured": {
+      "naive": {
+        "l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum": 0.0,
+        "l1tex__t_sector_hit_rate.pct": 94.98,
+        "gpu__time_duration.sum": 91462176.0,
+        "sm__inst_executed_pipe_tensor.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "sm__pipe_tensor_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_imma_cycles_active.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "smsp__pipe_tensor_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_imma_cycles_active.sum": 0.0
+      },
+      "tile32": {
+        "l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum": 3221225472.0,
+        "l1tex__t_sector_hit_rate.pct": 0.0,
+        "gpu__time_duration.sum": 64184864.0,
+        "sm__inst_executed_pipe_tensor.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "sm__pipe_tensor_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_imma_cycles_active.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "smsp__pipe_tensor_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_imma_cycles_active.sum": 0.0
+      },
+      "reg4x4": {
+        "l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum": 805372985.0,
+        "l1tex__t_sector_hit_rate.pct": 2.21,
+        "gpu__time_duration.sum": 15934784.0,
+        "sm__inst_executed_pipe_tensor.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "sm__pipe_tensor_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_imma_cycles_active.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "smsp__pipe_tensor_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_imma_cycles_active.sum": 0.0
+      },
+      "vendor": {
+        "l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum": 269159808.0,
+        "l1tex__t_sector_hit_rate.pct": 0.03,
+        "gpu__time_duration.sum": 8550496.0,
+        "sm__inst_executed_pipe_tensor.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "sm__pipe_tensor_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_imma_cycles_active.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "smsp__pipe_tensor_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_imma_cycles_active.sum": 0.0
+      }
+    },
+    "launches": [
+      {
+        "name": "naive",
+        "dram__bytes_read.sum": 10908005760.0,
+        "gpu__time_duration.sum": 91011680.0,
+        "l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum": 0.0,
+        "l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum": 4294967296.0,
+        "l1tex__t_sector_hit_rate.pct": 94.98,
+        "lts__t_bytes.sum": 17258552224.0,
+        "sm__inst_executed_pipe_tensor.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "sm__pipe_tensor_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_imma_cycles_active.sum": 0.0,
+        "smsp__inst_executed_op_shared_ld.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "smsp__pipe_tensor_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_imma_cycles_active.sum": 0.0
+      },
+      {
+        "name": "naive",
+        "dram__bytes_read.sum": 10912771712.0,
+        "gpu__time_duration.sum": 91462176.0,
+        "l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum": 0.0,
+        "l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum": 4294967296.0,
+        "l1tex__t_sector_hit_rate.pct": 94.98,
+        "lts__t_bytes.sum": 17264473536.0,
+        "sm__inst_executed_pipe_tensor.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "sm__pipe_tensor_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_imma_cycles_active.sum": 0.0,
+        "smsp__inst_executed_op_shared_ld.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "smsp__pipe_tensor_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_imma_cycles_active.sum": 0.0
+      },
+      {
+        "name": "tile32",
+        "dram__bytes_read.sum": 10384900480.0,
+        "gpu__time_duration.sum": 64587680.0,
+        "l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum": 3221225472.0,
+        "l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum": 134217728.0,
+        "l1tex__t_sector_hit_rate.pct": 0.0,
+        "lts__t_bytes.sum": 17258796544.0,
+        "sm__inst_executed_pipe_tensor.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "sm__pipe_tensor_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_imma_cycles_active.sum": 0.0,
+        "smsp__inst_executed_op_shared_ld.sum": 2684354560.0,
+        "smsp__inst_executed_pipe_tensor.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "smsp__pipe_tensor_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_imma_cycles_active.sum": 0.0
+      },
+      {
+        "name": "tile32",
+        "dram__bytes_read.sum": 10342247424.0,
+        "gpu__time_duration.sum": 64184864.0,
+        "l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum": 3221225472.0,
+        "l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum": 134217728.0,
+        "l1tex__t_sector_hit_rate.pct": 0.0,
+        "lts__t_bytes.sum": 17254229952.0,
+        "sm__inst_executed_pipe_tensor.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "sm__pipe_tensor_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_imma_cycles_active.sum": 0.0,
+        "smsp__inst_executed_op_shared_ld.sum": 2684354560.0,
+        "smsp__inst_executed_pipe_tensor.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "smsp__pipe_tensor_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_imma_cycles_active.sum": 0.0
+      },
+      {
+        "name": "reg4x4",
+        "dram__bytes_read.sum": 4990315776.0,
+        "gpu__time_duration.sum": 15906432.0,
+        "l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum": 805374809.0,
+        "l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum": 67108864.0,
+        "l1tex__t_sector_hit_rate.pct": 2.22,
+        "lts__t_bytes.sum": 8688870368.0,
+        "sm__inst_executed_pipe_tensor.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "sm__pipe_tensor_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_imma_cycles_active.sum": 0.0,
+        "smsp__inst_executed_op_shared_ld.sum": 268435456.0,
+        "smsp__inst_executed_pipe_tensor.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "smsp__pipe_tensor_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_imma_cycles_active.sum": 0.0
+      },
+      {
+        "name": "reg4x4",
+        "dram__bytes_read.sum": 4985195008.0,
+        "gpu__time_duration.sum": 15934784.0,
+        "l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum": 805372985.0,
+        "l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum": 67108864.0,
+        "l1tex__t_sector_hit_rate.pct": 2.21,
+        "lts__t_bytes.sum": 8689198016.0,
+        "sm__inst_executed_pipe_tensor.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "sm__pipe_tensor_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_imma_cycles_active.sum": 0.0,
+        "smsp__inst_executed_op_shared_ld.sum": 268435456.0,
+        "smsp__inst_executed_pipe_tensor.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "smsp__pipe_tensor_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_imma_cycles_active.sum": 0.0
+      },
+      {
+        "name": "void cutlass::Kernel2<cutlass_80_simt_sgemm_128x64_8x5_nn_align1>(T1::Params)",
+        "dram__bytes_read.sum": 1674127872.0,
+        "gpu__time_duration.sum": 8538592.0,
+        "l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum": 269160655.0,
+        "l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum": 50331648.0,
+        "l1tex__t_sector_hit_rate.pct": 0.03,
+        "lts__t_bytes.sum": 6508243872.0,
+        "sm__inst_executed_pipe_tensor.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "sm__pipe_tensor_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_imma_cycles_active.sum": 0.0,
+        "smsp__inst_executed_op_shared_ld.sum": 134774784.0,
+        "smsp__inst_executed_pipe_tensor.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "smsp__pipe_tensor_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_imma_cycles_active.sum": 0.0
+      },
+      {
+        "name": "void cutlass::Kernel2<cutlass_80_simt_sgemm_128x64_8x5_nn_align1>(T1::Params)",
+        "dram__bytes_read.sum": 1713392512.0,
+        "gpu__time_duration.sum": 8550496.0,
+        "l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum": 269159808.0,
+        "l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum": 50331648.0,
+        "l1tex__t_sector_hit_rate.pct": 0.03,
+        "lts__t_bytes.sum": 6511110368.0,
+        "sm__inst_executed_pipe_tensor.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "sm__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "sm__pipe_tensor_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "sm__pipe_tensor_op_imma_cycles_active.sum": 0.0,
+        "smsp__inst_executed_op_shared_ld.sum": 134774784.0,
+        "smsp__inst_executed_pipe_tensor.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_hmma.sum": 0.0,
+        "smsp__inst_executed_pipe_tensor_op_imma.sum": 0.0,
+        "smsp__pipe_tensor_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_hmma_cycles_active.sum": 0.0,
+        "smsp__pipe_tensor_op_imma_cycles_active.sum": 0.0
+      }
+    ]
+  },
+  "refusals": [
+    {
+      "container": "ta-01M7M17RAYZ1SJRGQ4GZFV5P2R",
+      "refused": "GPU is 'NVIDIA A10G', not 'NVIDIA A10'; nothing was timed",
+      "gpu": {
+        "name": "NVIDIA A10G",
+        "driver": "620.70.06",
+        "max_sm_clock_mhz": 1710,
+        "power_limit_w": 300.0,
+        "uuid": "GPU-fee3843f-95df-0b06-ca32-0aa11e4797bd"
+      },
+      "kind": "timing"
+    },
+    {
+      "container": "ta-01M7M17R1C6K66S8KS5T54YHBR",
+      "refused": "GPU is 'NVIDIA A10G', not 'NVIDIA A10'; nothing was timed",
+      "gpu": {
+        "name": "NVIDIA A10G",
+        "driver": "620.70.06",
+        "max_sm_clock_mhz": 1710,
+        "power_limit_w": 300.0,
+        "uuid": "GPU-0320a911-e307-64f0-5f13-ef804c474984"
+      },
+      "kind": "timing"
+    }
+  ]
+}

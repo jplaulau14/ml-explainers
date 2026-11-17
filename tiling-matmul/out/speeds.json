@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "source": {
+    "commit": "6c06665c9b7f54d7a1f923c15eb9a06ef48c059e",
+    "code": "https://github.com/jplaulau14/ml-explainers/tree/6c06665c9b7f54d7a1f923c15eb9a06ef48c059e/tiling-matmul"
+  },
+  "machines": [
+    {
+      "id": "m3-pro",
+      "name": "Apple M3 Pro",
+      "n": 4096,
+      "runs": 3,
+      "conditions": {
+        "acPower": true,
+        "lowPowerMode": false,
+        "publication": true,
+        "dtype": "float32",
+        "timingMethod": "wall clock around mx.eval",
+        "timingWarmups": 5,
+        "timingLaunchesPerSample": 8,
+        "timingSamples": 10
+      },
+      "versions": {
+        "commit": "6c06665c9b7f54d7a1f923c15eb9a06ef48c059e",
+        "macos": "26.7.3",
+        "mlx": "0.32.4",
+        "python": "3.12.9"
+      },
+      "kernels": [
+        {
+          "kernel": "naive",
+          "ratioMin": 1.0,
+          "ratioMax": 1.0,
+          "gflopsThisRun": 695.8672852112509
+        },
+        {
+          "kernel": "tile32",
+          "ratioMin": 1.0588526514393177,
+          "ratioMax": 1.0736005349221562,
+          "gflopsThisRun": 743.4473847768107
+        },
+        {
+          "kernel": "reg4x4",
+          "ratioMin": 2.7857343932988097,
+          "ratioMax": 2.8188118333801087,
+          "gflopsThisRun": 1950.0305199531963
+        },
+        {
+          "kernel": "vendor",
+          "ratioMin": 5.249164402579451,
+          "ratioMax": 5.627055541272429,
+          "gflopsThisRun": 3695.733364479258
+        }
+      ]
+    },
+    {
+      "id": "a10",
+      "name": "NVIDIA A10",
+      "n": 4096,
+      "runs": 3,
+      "conditions": {
+        "publication": true,
+        "dtype": "float32",
+        "timingMethod": "CUDA events around each launch",
+        "timingWarmups": 3,
+        "timingLaunchesPerSample": 1,
+        "timingSamples": 10,
+        "maxSmClockMHz": 1695,
+        "powerLimitW": 150.0,
+        "smCount": 72,
+        "l2Bytes": 6291456,
+        "distinctGpus": 3
+      },
+      "versions": {
+        "commit": "6c06665c9b7f54d7a1f923c15eb9a06ef48c059e",
+        "gpu": "NVIDIA A10",
+        "driver": "610.57.04",
+        "cudaRuntime": "12.9",
+        "cudaDriver": "13.3",
+        "cupy": "13.6.0",
+        "ncu": "Version 2025.2.0.0 (build 35613519) (public-release)",
+        "modal": "1.6.4",
+        "python": "3.12.1"
+      },
+      "kernels": [
+        {
+          "kernel": "naive",
+          "ratioMin": 1.0,
+          "ratioMax": 1.0,
+          "gflopsThisRun": 1470.3152904822152
+        },
+        {
+          "kernel": "tile32",
+          "ratioMin": 1.4325059306156018,
+          "ratioMax": 1.4484836333791244,
+          "gflopsThisRun": 2108.6839604598294
+        },
+        {
+          "kernel": "reg4x4",
+          "ratioMin": 4.700742096254912,
+          "ratioMax": 4.723429572571793,
+          "gflopsThisRun": 6944.930724068182
+        },
+        {
+          "kernel": "vendor",
+          "ratioMin": 8.653426271947415,
+          "ratioMax": 8.902460102803753,
+          "gflopsThisRun": 12723.2649627048
+        }
+      ]
+    }
+  ]
+}

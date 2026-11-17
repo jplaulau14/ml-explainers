@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "source": {
+    "commit": "6c06665c9b7f54d7a1f923c15eb9a06ef48c059e",
+    "code": "https://github.com/jplaulau14/ml-explainers/tree/6c06665c9b7f54d7a1f923c15eb9a06ef48c059e/tiling-matmul"
+  },
+  "machines": [
+    {
+      "id": "m3-pro",
+      "name": "Apple M3 Pro",
+      "n": 4096,
+      "runs": 3,
+      "conditions": {
+        "acPower": true,
+        "lowPowerMode": false,
+        "publication": true,
+        "dtype": "float32",
+        "timingMethod": "wall clock around mx.eval",
+        "timingWarmups": 5,
+        "timingLaunchesPerSample": 8,
+        "timingSamples": 10
+      },
+      "versions": {
+        "commit": "6c06665c9b7f54d7a1f923c15eb9a06ef48c059e",
+        "macos": "26.7.3",
+        "mlx": "0.32.4",
+        "python": "3.12.9"
+      },
+      "kernels": [
+        {
+          "kernel": "reg8x8",
+          "ratioMin": 0.6702539283804966,
+          "ratioMax": 0.6796672048554693,
+          "gflopsThisRun": 469.50683495668693
+        }
+      ]
+    },
+    {
+      "id": "a10",
+      "name": "NVIDIA A10",
+      "n": 4096,
+      "runs": 3,
+      "conditions": {
+        "publication": true,
+        "dtype": "float32",
+        "timingMethod": "CUDA events around each launch",
+        "timingWarmups": 3,
+        "timingLaunchesPerSample": 1,
+        "timingSamples": 10,
+        "maxSmClockMHz": 1695,
+        "powerLimitW": 150.0,
+        "smCount": 72,
+        "l2Bytes": 6291456,
+        "distinctGpus": 3
+      },
+      "versions": {
+        "commit": "6c06665c9b7f54d7a1f923c15eb9a06ef48c059e",
+        "gpu": "NVIDIA A10",
+        "driver": "610.57.04",
+        "cudaRuntime": "12.9",
+        "cudaDriver": "13.3",
+        "cupy": "13.6.0",
+        "ncu": "Version 2025.2.0.0 (build 35613519) (public-release)",
+        "modal": "1.6.4",
+        "python": "3.12.1"
+      },
+      "kernels": [
+        {
+          "kernel": "reg8x8",
+          "ratioMin": 7.146156110778247,
+          "ratioMax": 7.34263089467605,
+          "gflopsThisRun": 10516.158193041276
+        }
+      ]
+    }
+  ]
+}

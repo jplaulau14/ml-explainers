@@ -134,7 +134,35 @@ Each sample queues 8 launches, evaluates them with one `mx.eval`, and divides th
 
 ## Results
 
-Pending the publication run.
+All numbers come from `out/` at commit `6c06665c9b7f54d7a1f923c15eb9a06ef48c059e`, at n = 4096.
+Each cell is the lowest to the highest per-process ratio to `naive` (naive = 1.00), rounded to 2 decimals.
+Raw GFLOP/s in the files are on this run only.
+
+The Apple M3 Pro ratios come from 3 processes.
+
+| Kernel | Ratio to naive |
+| --- | --- |
+| `naive` | 1.00 to 1.00 |
+| `tile32` | 1.06 to 1.07 |
+| `reg4x4` | 2.79 to 2.82 |
+| `reg8x8` | 0.67 to 0.68 |
+| `vendor` (`mx.matmul`) | 5.25 to 5.63 |
+
+The Mac ran on AC power with Low Power Mode off, read before and after every process, on macOS 26.7.3 and MLX 0.32.4.
+
+The NVIDIA A10 ratios come from 3 timing calls.
+
+| Kernel | Ratio to naive |
+| --- | --- |
+| `naive` | 1.00 to 1.00 |
+| `tile32` | 1.43 to 1.45 |
+| `reg4x4` | 4.70 to 4.72 |
+| `reg8x8` | 7.15 to 7.34 |
+| `vendor` (cuBLAS) | 8.65 to 8.90 |
+
+The A10 run used 3 timing calls and 1 Nsight Compute call, all on "NVIDIA A10", and 3 distinct GPUs across the timing calls.
+Two other calls landed on an "NVIDIA A10G", refused and were replaced.
+The cuBLAS kernel was `void cutlass::Kernel2<cutlass_80_simt_sgemm_128x64_8x5_nn_align1>(T1::Params)`, and all 12 tensor-pipe counters read 0.
 
 ## How this maps to the essay
 

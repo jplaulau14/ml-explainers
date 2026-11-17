@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "source": {
+    "commit": "6c06665c9b7f54d7a1f923c15eb9a06ef48c059e",
+    "code": "https://github.com/jplaulau14/ml-explainers/tree/6c06665c9b7f54d7a1f923c15eb9a06ef48c059e/tiling-matmul"
+  },
+  "gpu": "NVIDIA A10",
+  "n": 4096,
+  "vendorKernel": "void cutlass::Kernel2<cutlass_80_simt_sgemm_128x64_8x5_nn_align1>(T1::Params)",
+  "rows": [
+    {
+      "kernel": "naive",
+      "globalLoadRequests": 4294967296,
+      "sharedLoads": 0,
+      "l2Bytes": 17264473536,
+      "dramReadBytes": 10912771712
+    },
+    {
+      "kernel": "tile32",
+      "globalLoadRequests": 134217728,
+      "sharedLoads": 2684354560,
+      "l2Bytes": 17254229952,
+      "dramReadBytes": 10342247424
+    },
+    {
+      "kernel": "reg4x4",
+      "globalLoadRequests": 67108864,
+      "sharedLoads": 268435456,
+      "l2Bytes": 8689198016,
+      "dramReadBytes": 4985195008
+    },
+    {
+      "kernel": "vendor",
+      "globalLoadRequests": 50331648,
+      "sharedLoads": 134774784,
+      "l2Bytes": 6511110368,
+      "dramReadBytes": 1713392512
+    }
+  ]
+}
