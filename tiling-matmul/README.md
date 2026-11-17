@@ -62,7 +62,7 @@ uv run tiling-explainer a10
 ```
 
 The command reads the current commit and runs `uv lock --check` before it uploads anything.
-It refuses to start, with exit status 2, when `uv.lock` does not match `pyproject.toml`, or when files in this folder outside `out/` have uncommitted changes and n is 4096.
+It refuses to start, with exit status 2, when `uv.lock` does not match `pyproject.toml`, or when files in this folder outside `out/` have uncommitted changes.
 Each call reports the file list and hash of the package it ran, which must match HEAD.
 It then starts 3 timing calls and 1 Nsight Compute call in parallel, each in its own container with `gpu="A10"`.
 

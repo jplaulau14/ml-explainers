@@ -62,7 +62,8 @@ def time_on_a10(reading: SmiReading, n: int, commit: str) -> Call:
 
 def profile_on_a10(reading: SmiReading, n: int, commit: str) -> Call:
     facts = call_facts(reading, commit)
-    tensors = tensor_metrics(run_text(["ncu", "--query-metrics"]))
+    query = run_text(["ncu", "--query-metrics"])
+    tensors = tensor_metrics(query)
     command = ncu_command(sys.executable, n, tensors)
     package_parent = str(Path(tiling_explainer.__file__).resolve().parents[1])
     done = subprocess.run(
@@ -76,7 +77,7 @@ def profile_on_a10(reading: SmiReading, n: int, commit: str) -> Call:
         raise RuntimeError(f"ncu failed with status {done.returncode}:\n{done.stderr[-3000:]}")
     version = run_text(["ncu", "--version"]).strip().splitlines()[-1]
     detail = {"ncu": version, "command": " ".join(command), "tensorMetrics": tensors}
-    return {**facts, **detail, "csv": done.stdout}
+    return {**facts, **detail, "metricsQuery": query, "csv": done.stdout}
 
 
 def container() -> str:

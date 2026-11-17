@@ -136,7 +136,8 @@ def profile_detail(
 ) -> dict[str, object]:
     extra = (SHARED_WAVEFRONTS, L1_HIT_RATE, DURATION, *tensor_names(profile))
     per_kernel = {kernel: {m: launch[m] for m in extra} for kernel, launch in measured.items()}
-    keep = ("container", "gpuUuid", "code", "ncu", "command", "tensorMetrics", "gpu", "software")
+    keep = ("container", "gpuUuid", "code", "ncu", "command", "tensorMetrics", "metricsQuery")
+    keep += ("gpu", "software")
     return {**{key: profile[key] for key in keep}, "measured": per_kernel, "launches": launches}
 
 

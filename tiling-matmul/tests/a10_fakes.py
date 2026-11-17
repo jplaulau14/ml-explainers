@@ -41,4 +41,5 @@ def profile(vendor: str = CUBLAS, launches: int = 2, cycles: int = 0) -> dict[st
         lines.append(f'"{index}","{name}","{HMMA}","inst","0"')
         lines.append(f'"{index}","{name}","{HMMA_CYCLES}","cycle","{cycles}"')
     detail = {"ncu": "Version 2025.2.0.0", "command": "ncu", "tensorMetrics": TENSORS}
+    detail["metricsQuery"] = ""
     return {**call(0), "gpuUuid": "GPU-9", **detail, "csv": "\n".join(lines)}

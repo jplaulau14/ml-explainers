@@ -19,8 +19,8 @@ def lock_is_current() -> bool:
     return done.returncode == 0
 
 
-def refusal(publication: bool, dirty: bool, lock_current: bool) -> str | None:
-    if publication and dirty:
+def refusal(dirty: bool, lock_current: bool) -> str | None:
+    if dirty:
         return "uncommitted changes in tiling-matmul/ outside out/"
     if not lock_current:
         return "uv.lock does not match pyproject.toml; run uv lock and commit it"
@@ -39,7 +39,7 @@ def profile_problem(launches: list[dict[str, str | float]], tensors: list[str]) 
 def run_a10(n: int, calls: int) -> int:
     publication = n == PUBLICATION_N
     commit = head_commit(ROOT)
-    reason = refusal(publication, is_dirty(ROOT), lock_is_current())
+    reason = refusal(is_dirty(ROOT), lock_is_current())
     if reason:
         print(f"refusing to start the A10 run: {reason}")
         return 2
