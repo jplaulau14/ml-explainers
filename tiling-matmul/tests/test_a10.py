@@ -28,13 +28,7 @@ from tiling_explainer.a10.run import profile_problem
 from tiling_explainer.a10.spec import guarded
 from tiling_explainer.contract import SPEED_KERNELS, bytes_problems, problems, sidecar_problems
 
-QUERY = """Device NVIDIA A10 (GA102)
-Metric Name                              Metric Type   Metric Unit  Metric Description
-lts__t_bytes                             Counter       byte         # of bytes requested
-sm__inst_executed_pipe_tensor_op_hmma    Counter       inst         # of warp instructions
-sm__pipe_tensor_op_hmma_cycles_active    Counter       cycle        # of active cycles
-sm__pipe_tensor_op_hmma_cycles_active_pct Ratio        %            share of cycles
-"""
+QUERY = (Path(__file__).parent / "fixtures" / "a10_query_metrics.txt").read_text()
 
 
 def smi(name: str) -> str:
@@ -107,7 +101,18 @@ def test_profile_keeps_the_second_launch_of_each_kernel() -> None:
 
 
 def test_every_tensor_pipe_counter_the_device_lists_is_collected() -> None:
-    assert tensor_metrics(QUERY) == [HMMA, HMMA_CYCLES]
+    assert tensor_metrics(QUERY) == sorted(
+        f"{unit}__{metric}.sum"
+        for unit in ("sm", "smsp")
+        for metric in (
+            "inst_executed_pipe_tensor",
+            "inst_executed_pipe_tensor_op_hmma",
+            "inst_executed_pipe_tensor_op_imma",
+            "pipe_tensor_cycles_active",
+            "pipe_tensor_op_hmma_cycles_active",
+            "pipe_tensor_op_imma_cycles_active",
+        )
+    )
 
 
 def test_device_without_a_tensor_pipe_counter_fails_the_profile() -> None:
