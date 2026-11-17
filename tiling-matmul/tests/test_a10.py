@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 
 from tiling_explainer import driver
-from tiling_explainer.a10g.gather import TooManyRefusals, gather
-from tiling_explainer.a10g.ncu import (
+from tiling_explainer.a10.gather import TooManyRefusals, gather
+from tiling_explainer.a10.ncu import (
     DRAM_READ,
     L2_BYTES,
     METRICS,
@@ -16,9 +16,9 @@ from tiling_explainer.a10g.ncu import (
     measured_launches,
     parse_launches,
 )
-from tiling_explainer.a10g.outputs import build_a10g_machine, run_problem, write_a10g
-from tiling_explainer.a10g.run import profile_problem
-from tiling_explainer.a10g.spec import guarded
+from tiling_explainer.a10.outputs import build_a10_machine, run_problem, write_a10
+from tiling_explainer.a10.run import profile_problem
+from tiling_explainer.a10.spec import guarded
 from tiling_explainer.contract import SPEED_KERNELS, bytes_problems, problems
 
 COMMIT = "a" * 40
@@ -33,7 +33,7 @@ def smi(name: str) -> str:
     return f"{name}, 620.70.06, 1710, 300.00, GPU-1234\n"
 
 
-def call(index: int, gpu_name: str = "NVIDIA A10G") -> dict[str, object]:
+def call(index: int, gpu_name: str = "NVIDIA A10") -> dict[str, object]:
     times = {"naive": NAIVE_TIMES[index], "tile32": TILE32_TIMES[index]}
     times |= {"reg4x4": 18.0, "reg8x8": 14.0, "vendor": 9.0}
     gpu = {"name": gpu_name, "driver": "620.70.06", "max_sm_clock_mhz": 1710}
@@ -59,16 +59,16 @@ def profile(vendor: str = CUBLAS, launches: int = 2) -> dict[str, object]:
     return {**call(0), "ncu": "Version 2025.2.0.0", "command": "ncu", "csv": "\n".join(lines)}
 
 
-@pytest.mark.parametrize("name", ["NVIDIA A10", "NVIDIA L4", "NVIDIA A100-SXM4-40GB"])
-def test_chip_guard_stops_any_gpu_but_the_a10g_before_timing(name: str) -> None:
+@pytest.mark.parametrize("name", ["NVIDIA A10G", "NVIDIA L4", "NVIDIA A100-SXM4-40GB"])
+def test_chip_guard_stops_any_gpu_but_the_a10_before_timing(name: str) -> None:
     timed: list[str] = []
     result = guarded(smi(name), lambda reading: {"timed": timed.append(reading.name)})
-    assert result["refused"] == f"GPU is '{name}', not 'NVIDIA A10G'; nothing was timed"
+    assert result["refused"] == f"GPU is '{name}', not 'NVIDIA A10'; nothing was timed"
     assert timed == []
 
 
-def test_chip_guard_lets_the_a10g_through() -> None:
-    assert guarded(smi("NVIDIA A10G"), lambda reading: {"uuid": reading.uuid}) == {
+def test_chip_guard_lets_the_a10_through() -> None:
+    assert guarded(smi("NVIDIA A10"), lambda reading: {"uuid": reading.uuid}) == {
         "uuid": "GPU-1234"
     }
 
@@ -86,15 +86,15 @@ def chips(names: list[str]) -> Callable[[], Done]:
 
     def start() -> Done:
         name = next(queue)
-        return Done({"refused": name} if name != "NVIDIA A10G" else {"gpu": name})
+        return Done({"refused": name} if name != "NVIDIA A10" else {"gpu": name})
 
     return start
 
 
 def test_refused_calls_are_replaced_and_recorded() -> None:
     starters = {
-        "timing": chips(["NVIDIA A10", "NVIDIA A10G", "NVIDIA A10G", "NVIDIA A10G"]),
-        "profile": chips(["NVIDIA A10", "NVIDIA A10G"]),
+        "timing": chips(["NVIDIA A10G", "NVIDIA A10", "NVIDIA A10", "NVIDIA A10"]),
+        "profile": chips(["NVIDIA A10G", "NVIDIA A10"]),
     }
     accepted, refusals = gather(starters, {"timing": 3, "profile": 1})
     assert [len(accepted["timing"]), len(accepted["profile"])] == [3, 1]
@@ -102,13 +102,13 @@ def test_refused_calls_are_replaced_and_recorded() -> None:
 
 
 def test_seventh_refusal_fails_the_run() -> None:
-    starters = {"timing": chips(["NVIDIA A10"] * 10), "profile": chips(["NVIDIA A10G"])}
+    starters = {"timing": chips(["NVIDIA A10G"] * 10), "profile": chips(["NVIDIA A10"])}
     with pytest.raises(TooManyRefusals, match="7 calls refused, limit 6"):
         gather(starters, {"timing": 3, "profile": 1})
 
 
 def test_six_refusals_still_finish_the_run() -> None:
-    names = ["NVIDIA A10"] * 6 + ["NVIDIA A10G"] * 3
+    names = ["NVIDIA A10G"] * 6 + ["NVIDIA A10"] * 3
     accepted, refusals = gather({"timing": chips(names)}, {"timing": 3})
     assert (len(accepted["timing"]), len(refusals)) == (3, 6)
 
@@ -129,8 +129,8 @@ def test_profile_missing_a_launch_is_refused() -> None:
         measured_launches(parse_launches(str(profile(launches=1)["csv"])))
 
 
-def test_a10g_ratio_range_is_the_per_call_extremes() -> None:
-    machine = build_a10g_machine(
+def test_a10_ratio_range_is_the_per_call_extremes() -> None:
+    machine = build_a10_machine(
         4096, [call(0), call(1), call(2)], profile(), SPEED_KERNELS, True, COMMIT
     )
     tile32 = next(row for row in machine["kernels"] if row["kernel"] == "tile32")
@@ -145,11 +145,11 @@ def test_a10g_ratio_range_is_the_per_call_extremes() -> None:
     )
 
 
-def test_a10g_entry_with_another_chip_name_fails_the_contract() -> None:
-    calls = [call(0, "NVIDIA A10"), call(1, "NVIDIA A10"), call(2, "NVIDIA A10")]
-    machine = build_a10g_machine(4096, calls, profile(), SPEED_KERNELS, True, COMMIT)
+def test_a10_entry_with_another_chip_name_fails_the_contract() -> None:
+    calls = [call(0, "NVIDIA A10G"), call(1, "NVIDIA A10G"), call(2, "NVIDIA A10G")]
+    machine = build_a10_machine(4096, calls, profile(), SPEED_KERNELS, True, COMMIT)
     doc = {"version": 1, "source": {"commit": COMMIT, "code": ""}, "machines": [machine]}
-    assert problems(doc, SPEED_KERNELS) == ["machines[0]: name must be 'NVIDIA A10G'"]
+    assert problems(doc, SPEED_KERNELS) == ["machines[0]: name must be 'NVIDIA A10'"]
 
 
 def test_calls_on_different_hardware_are_a_run_problem() -> None:
@@ -165,10 +165,10 @@ def write_run(monkeypatch: pytest.MonkeyPatch, folder: Path, vendor: str) -> Non
     monkeypatch.setattr(driver, "ROOT", folder)
     launches = parse_launches(str(profile(vendor)["csv"]))
     calls = [call(0), call(1), call(2)]
-    write_a10g(folder, 4096, calls, profile(vendor), [], launches, COMMIT, True)
+    write_a10(folder, 4096, calls, profile(vendor), [], launches, COMMIT, True)
 
 
-def test_a10g_run_keeps_the_mac_entry_and_writes_bytes(
+def test_a10_run_keeps_the_mac_entry_and_writes_bytes(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     mac = {"id": "m3-pro", "versions": {"commit": "b" * 40}}
@@ -177,7 +177,7 @@ def test_a10g_run_keeps_the_mac_entry_and_writes_bytes(
     speeds = json.loads((tmp_path / "speeds.json").read_text())
     assert [(m["id"], m["versions"]["commit"]) for m in speeds["machines"]] == [
         ("m3-pro", "b" * 40),
-        ("a10g", COMMIT),
+        ("a10", COMMIT),
     ]
     doc = json.loads((tmp_path / "bytes.json").read_text())
     assert bytes_problems(doc) == []

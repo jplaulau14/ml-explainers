@@ -1,7 +1,7 @@
 import csv
 from collections import defaultdict
 
-from tiling_explainer.a10g.spec import PROFILED
+from tiling_explainer.a10.spec import PROFILED
 from tiling_explainer.contract import BytesRow
 
 REQUESTS = "l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum"
@@ -39,7 +39,7 @@ def ncu_command(python: str, n: int) -> list[str]:
         "--csv",
         python,
         "-m",
-        "tiling_explainer.a10g.target",
+        "tiling_explainer.a10.target",
         str(n),
     ]
 

@@ -3,8 +3,8 @@ from typing import TypedDict
 VERSION = 1
 SPEED_KERNELS = frozenset({"naive", "tile32", "reg4x4", "vendor"})
 CHALLENGE_KERNELS = frozenset({"reg8x8"})
-MACHINE_IDS = frozenset({"m3-pro", "a10g"})
-A10G_NAME = "NVIDIA A10G"
+MACHINE_IDS = frozenset({"m3-pro", "a10"})
+A10_NAME = "NVIDIA A10"
 MIN_RUNS = 3
 SOURCE_KEYS = {"commit", "code"}
 MACHINE_KEYS = {"id", "name", "n", "runs", "conditions", "versions", "kernels"}
@@ -105,8 +105,8 @@ def shape_problems(machine: dict[str, object], where: str) -> list[str]:
     return found
 
 
-def a10g_problems(machine: dict[str, object], where: str) -> list[str]:
-    found = [] if machine["name"] == A10G_NAME else [f"{where}: name must be {A10G_NAME!r}"]
+def a10_problems(machine: dict[str, object], where: str) -> list[str]:
+    found = [] if machine["name"] == A10_NAME else [f"{where}: name must be {A10_NAME!r}"]
     conditions = machine["conditions"]
     if isinstance(conditions, dict) and conditions.get("publication") is not True:
         found.append(f"{where}: conditions.publication must be true")
@@ -143,8 +143,8 @@ def machine_problems(machine: object, kernel_ids: frozenset[str], where: str) ->
     found += shape_problems(machine, where)
     if machine["id"] == "m3-pro":
         found += mac_problems(machine, where)
-    if machine["id"] == "a10g":
-        found += a10g_problems(machine, where)
+    if machine["id"] == "a10":
+        found += a10_problems(machine, where)
     return found
 
 
@@ -180,8 +180,8 @@ def bytes_problems(doc: object) -> list[str]:
     source = doc["source"]
     if not isinstance(source, dict) or set(source) != SOURCE_KEYS:
         found.append(f"source keys must be {sorted(SOURCE_KEYS)}")
-    if doc["gpu"] != A10G_NAME:
-        found.append(f"gpu must be {A10G_NAME!r}")
+    if doc["gpu"] != A10_NAME:
+        found.append(f"gpu must be {A10_NAME!r}")
     if not isinstance(doc["n"], int) or doc["n"] <= 0:
         found.append("n must be a positive integer")
     found += [problem for problem in [vendor_kernel_problem(doc["vendorKernel"])] if problem]

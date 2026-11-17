@@ -2,7 +2,7 @@ import json
 from collections.abc import Mapping
 from pathlib import Path
 
-from tiling_explainer.a10g.ncu import (
+from tiling_explainer.a10.ncu import (
     DURATION,
     L1_HIT_RATE,
     SHARED_WAVEFRONTS,
@@ -10,7 +10,7 @@ from tiling_explainer.a10g.ncu import (
     bytes_rows,
     measured_launches,
 )
-from tiling_explainer.a10g.spec import (
+from tiling_explainer.a10.spec import (
     KERNEL_ORDER,
     SAMPLES,
     TIMING_METHOD,
@@ -90,7 +90,7 @@ def versions(calls: list[Call], profile: Call, commit: str) -> dict[str, str]:
     }
 
 
-def build_a10g_machine(
+def build_a10_machine(
     n: int,
     calls: list[Call],
     profile: Call,
@@ -100,7 +100,7 @@ def build_a10g_machine(
 ) -> Machine:
     runs = [timings(call) for call in calls]
     return {
-        "id": "a10g",
+        "id": "a10",
         "name": str(section(calls[0], "gpu")["name"]),
         "n": n,
         "runs": len(runs),
@@ -139,7 +139,7 @@ def call_detail(call: Call) -> dict[str, object]:
     }
 
 
-def write_a10g(
+def write_a10(
     folder: Path,
     n: int,
     calls: list[Call],
@@ -152,7 +152,7 @@ def write_a10g(
     source: Source = {"commit": commit, "code": code_url(commit)}
     measured = measured_launches(launches)
     for name, kernels in (("speeds.json", SPEED_KERNELS), ("challenge.json", CHALLENGE_KERNELS)):
-        machine = build_a10g_machine(n, calls, profile, kernels, publication, commit)
+        machine = build_a10_machine(n, calls, profile, kernels, publication, commit)
         write_json(folder / name, merged(folder / name, source, machine))
     gpu = str(section(calls[0], "gpu")["name"])
     write_json(folder / "bytes.json", build_bytes(n, source, gpu, measured))
@@ -166,4 +166,4 @@ def write_a10g(
         "profile": profile_detail(profile, launches, measured),
         "refusals": refusals,
     }
-    write_json(folder / "a10g-runs.json", sidecar)
+    write_json(folder / "a10-runs.json", sidecar)

@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from dataclasses import asdict, dataclass
 
-from tiling_explainer.contract import A10G_NAME
+from tiling_explainer.contract import A10_NAME
 
 WARMUPS = 3
 SAMPLES = 10
@@ -41,7 +41,7 @@ def parse_smi(text: str) -> SmiReading:
 
 def guarded(smi_text: str, work: Callable[[SmiReading], dict[str, object]]) -> dict[str, object]:
     reading = parse_smi(smi_text)
-    if reading.name != A10G_NAME:
-        refused = f"GPU is {reading.name!r}, not {A10G_NAME!r}; nothing was timed"
+    if reading.name != A10_NAME:
+        refused = f"GPU is {reading.name!r}, not {A10_NAME!r}; nothing was timed"
         return {"refused": refused, "gpu": asdict(reading)}
     return work(reading)

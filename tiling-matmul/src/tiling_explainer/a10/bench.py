@@ -6,7 +6,7 @@ from statistics import median_high
 import cupy as cp
 import numpy
 
-from tiling_explainer.a10g.spec import ATOL, KERNEL_ORDER, RTOL, SAMPLES, SEED, WARMUPS
+from tiling_explainer.a10.spec import ATOL, KERNEL_ORDER, RTOL, SAMPLES, SEED, WARMUPS
 from tiling_explainer.cuda import KERNELS
 
 Launch = Callable[[], object]

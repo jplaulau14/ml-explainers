@@ -7,9 +7,9 @@ from pathlib import Path
 import modal
 
 import tiling_explainer
-from tiling_explainer.a10g.gather import gather
-from tiling_explainer.a10g.ncu import ncu_command
-from tiling_explainer.a10g.spec import SMI_QUERY, SmiReading, guarded
+from tiling_explainer.a10.gather import gather
+from tiling_explainer.a10.ncu import ncu_command
+from tiling_explainer.a10.spec import SMI_QUERY, SmiReading, guarded
 
 PROJECT = Path(__file__).resolve().parents[3]
 CUDA_IMAGE = (
@@ -27,10 +27,10 @@ image = (
     .env({"CUPY_TF32": "0"})
     .add_local_python_source("tiling_explainer")
 )
-app = modal.App("tiling-matmul-a10g", image=image)
+app = modal.App("tiling-matmul-a10", image=image)
 
 with image.imports():
-    from tiling_explainer.a10g import bench
+    from tiling_explainer.a10 import bench
 
 Call = dict[str, object]
 
@@ -53,12 +53,12 @@ def call_facts(reading: SmiReading, commit: str) -> Call:
     }
 
 
-def time_on_a10g(reading: SmiReading, n: int, commit: str) -> Call:
+def time_on_a10(reading: SmiReading, n: int, commit: str) -> Call:
     facts = call_facts(reading, commit)
     return {**facts, "kernels": bench.time_kernels(n), "attributes": bench.kernel_attributes()}
 
 
-def profile_on_a10g(reading: SmiReading, n: int, commit: str) -> Call:
+def profile_on_a10(reading: SmiReading, n: int, commit: str) -> Call:
     facts = call_facts(reading, commit)
     command = ncu_command(sys.executable, n)
     package_parent = str(Path(tiling_explainer.__file__).resolve().parents[1])
@@ -79,15 +79,15 @@ def container() -> str:
     return os.environ.get("MODAL_TASK_ID", "unknown")
 
 
-@app.function(gpu="A10G", timeout=CALL_TIMEOUT_SECONDS, single_use_containers=True)
+@app.function(gpu="A10", timeout=CALL_TIMEOUT_SECONDS, single_use_containers=True)
 def timing_call(n: int, commit: str) -> Call:
-    result = guarded(run_text(SMI_QUERY), lambda reading: time_on_a10g(reading, n, commit))
+    result = guarded(run_text(SMI_QUERY), lambda reading: time_on_a10(reading, n, commit))
     return {"container": container(), **result}
 
 
-@app.function(gpu="A10G", timeout=CALL_TIMEOUT_SECONDS, single_use_containers=True)
+@app.function(gpu="A10", timeout=CALL_TIMEOUT_SECONDS, single_use_containers=True)
 def profile_call(n: int, commit: str) -> Call:
-    result = guarded(run_text(SMI_QUERY), lambda reading: profile_on_a10g(reading, n, commit))
+    result = guarded(run_text(SMI_QUERY), lambda reading: profile_on_a10(reading, n, commit))
     return {"container": container(), **result}
 
 

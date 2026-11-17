@@ -50,14 +50,14 @@ def repo_with_code(tmp_path: Path) -> Path:
     return folder
 
 
-def mac_run_then_a10g_run(folder: Path) -> tuple[str, str]:
+def mac_run_then_a10_run(folder: Path) -> tuple[str, str]:
     mac = head_commit(folder)
     machine_run(folder, "m3-pro", "mac-runs.json", mac)
     commit_all(folder, "mac run")
     (folder / "README.md").write_text("results\n")
-    a10g = commit_all(folder, "readme")
-    machine_run(folder, "a10g", "a10g-runs.json", a10g)
-    return mac, a10g
+    a10 = commit_all(folder, "readme")
+    machine_run(folder, "a10", "a10-runs.json", a10)
+    return mac, a10
 
 
 def test_committed_output_records_the_commits_that_made_it() -> None:
@@ -68,24 +68,24 @@ def test_committed_output_records_the_commits_that_made_it() -> None:
 
 def test_machines_run_and_committed_at_different_commits_pass(tmp_path: Path) -> None:
     folder = repo_with_code(tmp_path)
-    mac, a10g = mac_run_then_a10g_run(folder)
-    commit_all(tmp_path, "a10g run")
+    mac, a10 = mac_run_then_a10_run(folder)
+    commit_all(tmp_path, "a10 run")
     doc = json.loads((folder / "out" / "speeds.json").read_text())
-    assert doc["source"]["commit"] == a10g
-    assert [m["versions"]["commit"] for m in doc["machines"]] == [mac, a10g]
+    assert doc["source"]["commit"] == a10
+    assert [m["versions"]["commit"] for m in doc["machines"]] == [mac, a10]
     assert stamp_problems(folder) == []
 
 
 def test_older_machine_entry_re_stamped_with_the_newer_commit_fails(tmp_path: Path) -> None:
     folder = repo_with_code(tmp_path)
-    mac, a10g = mac_run_then_a10g_run(folder)
+    mac, a10 = mac_run_then_a10_run(folder)
     speeds = folder / "out" / "speeds.json"
     doc = json.loads(speeds.read_text())
-    doc["machines"][0]["versions"]["commit"] = a10g
+    doc["machines"][0]["versions"]["commit"] = a10
     speeds.write_text(json.dumps(doc))
-    commit_all(tmp_path, "a10g run")
+    commit_all(tmp_path, "a10 run")
     assert stamp_problems(folder) == [
-        f"out/speeds.json: m3-pro commit {a10g} is not the run that last wrote out/mac-runs.json"
+        f"out/speeds.json: m3-pro commit {a10} is not the run that last wrote out/mac-runs.json"
     ]
 
 

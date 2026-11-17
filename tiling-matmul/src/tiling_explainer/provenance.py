@@ -3,7 +3,7 @@ import subprocess
 from pathlib import Path
 
 REPO_URL = "https://github.com/jplaulau14/ml-explainers"
-SIDECARS = {"m3-pro": "out/mac-runs.json", "a10g": "out/a10g-runs.json"}
+SIDECARS = {"m3-pro": "out/mac-runs.json", "a10": "out/a10-runs.json"}
 
 
 def git(folder: Path, *args: str) -> str:

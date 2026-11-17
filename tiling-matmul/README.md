@@ -4,7 +4,7 @@
 
 Companion code for the essay [Tiling a Matrix Multiply on a Mac and an NVIDIA GPU](https://www.patslaurel.com/writing/tiling-a-matrix-multiply).
 It holds four hand-written fp32 matrix multiply kernels, each in Metal and in CUDA C.
-A harness times the Metal versions on an Apple silicon Mac against `mx.matmul`, and a Modal app times and profiles the CUDA versions on an NVIDIA A10G against cuBLAS.
+A harness times the Metal versions on an Apple silicon Mac against `mx.matmul`, and a Modal app times and profiles the CUDA versions on an NVIDIA A10 against cuBLAS.
 
 | Kernel id | What each thread does | Threads per group | Sizes it accepts |
 | --- | --- | --- | --- |
@@ -12,7 +12,7 @@ A harness times the Metal versions on an Apple silicon Mac against `mx.matmul`, 
 | `tile32` | one output, from 32 x 32 tiles of A and B staged in threadgroup memory | 32 x 32 | multiples of 32 |
 | `reg4x4` | a 4 x 4 block of a 64 x 64 output tile, 16 values of k at a time | 256 | multiples of 64 |
 | `reg8x8` | an 8 x 8 block of a 128 x 128 output tile, 8 values of k at a time | 256 | multiples of 128 |
-| `vendor` | `mx.matmul` on the Mac, cuBLAS through `cupy.matmul` on the A10G | set by the library | any n |
+| `vendor` | `mx.matmul` on the Mac, cuBLAS through `cupy.matmul` on the A10 | set by the library | any n |
 
 The Metal sources are in `src/tiling_explainer/metal.py` and run through `mx.fast.metal_kernel`.
 The CUDA sources are in `src/tiling_explainer/cuda.py`, written for CuPy's `RawKernel`, with the thread shapes in the table.
@@ -53,21 +53,21 @@ The test that compares each kernel with `mx.matmul` skips on Linux, where MLX ha
 
 ## Run it on Modal
 
-The A10G run needs a [Modal](https://modal.com/) account, set up once with `uv run modal setup`.
+The A10 run needs a [Modal](https://modal.com/) account, set up once with `uv run modal setup`.
 From this folder:
 
 ```bash
 uv sync
-uv run tiling-explainer a10g
+uv run tiling-explainer a10
 ```
 
 The command reads the current commit and runs `uv lock --check` before it uploads anything.
 It refuses to start, with exit status 2, when `uv.lock` does not match `pyproject.toml`, or when files in this folder outside `out/` have uncommitted changes and n is 4096.
-It then starts 3 timing calls and 1 Nsight Compute call in parallel, each in its own container with `gpu="A10G"`.
+It then starts 3 timing calls and 1 Nsight Compute call in parallel, each in its own container with `gpu="A10"`.
 
 Each call first reads `nvidia-smi`.
-A call on any GPU other than "NVIDIA A10G" times nothing and returns a refusal; Modal sometimes places an `A10G` request on an NVIDIA A10.
-The run records each refusal in `a10g-runs.json` and starts a replacement call, up to 6 per run, and past that it exits with an error.
+A call that lands on any GPU other than "NVIDIA A10", an NVIDIA A10G included, times nothing and returns a refusal.
+The run records each refusal in `a10-runs.json` and starts a replacement call, up to 6 per run, and past that it exits with an error.
 
 Each timing call compiles the four CUDA kernels with CuPy, checks every hand-written kernel against cuBLAS with `allclose(rtol=1e-4, atol=1e-3)`, and fails if any kernel misses.
 It then gives each kernel 3 warm-up launches and 10 single-launch samples timed with CUDA events; the kernel's time is the upper median of the 10.
@@ -82,8 +82,8 @@ The cost of a full n = 4096 run is not yet confirmed.
 - `out/speeds.json`: ratios to naive for `naive`, `tile32`, `reg4x4` and `vendor`, one entry per machine.
 - `out/challenge.json`: the entry for `reg8x8`.
 - `out/mac-runs.json`: every process's times, errors against `mx.matmul`, ratios to naive and to `mx.matmul`, and power readings.
-- `out/bytes.json`: Nsight Compute counts for `naive`, `tile32`, `reg4x4` and `vendor` on the A10G.
-- `out/a10g-runs.json`: every A10G call's container, GPU UUID, device facts, versions, times, errors against cuBLAS and kernel register counts, plus the raw Nsight Compute rows.
+- `out/bytes.json`: Nsight Compute counts for `naive`, `tile32`, `reg4x4` and `vendor` on the A10.
+- `out/a10-runs.json`: every A10 call's container, GPU UUID, device facts, versions, times, errors against cuBLAS and kernel register counts, plus the raw Nsight Compute rows.
 
 `speeds.json` and `challenge.json` carry the same fields and differ only in the kernels they list.
 
@@ -91,12 +91,12 @@ The cost of a full n = 4096 run is not yet confirmed.
 | --- | --- |
 | `source.commit` | the commit checked out when the newest run that wrote the file started |
 | `source.code` | this folder on GitHub at that commit |
-| `machines[].id` | `m3-pro` on an M3 Pro (the chip name in lower case without "Apple", with hyphens), `a10g` on the A10G |
-| `machines[].name` | the chip name from `sysctl -n machdep.cpu.brand_string` on the Mac, from `nvidia-smi` on the A10G |
+| `machines[].id` | `m3-pro` on an M3 Pro (the chip name in lower case without "Apple", with hyphens), `a10` on the A10 |
+| `machines[].name` | the chip name from `sysctl -n machdep.cpu.brand_string` on the Mac, from `nvidia-smi` on the A10 |
 | `machines[].n` | matrix size |
-| `machines[].runs` | number of processes on the Mac, of timing calls on the A10G |
-| `machines[].conditions` | flat values only: `publication`, `dtype` (`float32`), `timingMethod`, `timingWarmups`, `timingLaunchesPerSample` and `timingSamples` on both machines; `acPower` and `lowPowerMode` on the Mac; `maxSmClockMHz`, `powerLimitW`, `smCount`, `l2Bytes` and `distinctGpus` on the A10G |
-| `machines[].versions` | strings only: the commit the machine's run started from, and macOS, MLX and Python on the Mac; GPU name, driver, CUDA runtime, CUDA driver, CuPy, Nsight Compute, Modal and Python on the A10G |
+| `machines[].runs` | number of processes on the Mac, of timing calls on the A10 |
+| `machines[].conditions` | flat values only: `publication`, `dtype` (`float32`), `timingMethod`, `timingWarmups`, `timingLaunchesPerSample` and `timingSamples` on both machines; `acPower` and `lowPowerMode` on the Mac; `maxSmClockMHz`, `powerLimitW`, `smCount`, `l2Bytes` and `distinctGpus` on the A10 |
+| `machines[].versions` | strings only: the commit the machine's run started from, and macOS, MLX and Python on the Mac; GPU name, driver, CUDA runtime, CUDA driver, CuPy, Nsight Compute, Modal and Python on the A10 |
 | `kernels[].kernel` | the kernel id from the first table |
 | `kernels[].ratioMin`, `kernels[].ratioMax` | lowest and highest per-process ratio, naive time / kernel time |
 | `kernels[].gflopsThisRun` | median over the processes of 2n³ / time |
@@ -105,7 +105,7 @@ A rerun replaces only the entry with the same machine id and keeps the others, s
 
 | `bytes.json` field | Meaning |
 | --- | --- |
-| `gpu` | `NVIDIA A10G` |
+| `gpu` | `NVIDIA A10` |
 | `n` | matrix size of the profiled launches |
 | `vendorKernel` | the cuBLAS kernel name, which must contain `simt_sgemm` and not `tensorop` |
 | `rows[].globalLoadRequests` | `l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum`, global-load requests into L1 |
@@ -113,7 +113,7 @@ A rerun replaces only the entry with the same machine id and keeps the others, s
 | `rows[].l2Bytes` | `lts__t_bytes.sum`, bytes through L2 |
 | `rows[].dramReadBytes` | `dram__bytes_read.sum`, bytes read from DRAM |
 
-`a10g-runs.json` adds each kernel's shared-load wavefronts, L1 hit rate and duration from the same profile.
+`a10-runs.json` adds each kernel's shared-load wavefronts, L1 hit rate and duration from the same profile.
 
 Each process makes A and B with `mx.random.normal` and seed 0 and checks every kernel against `mx.matmul` with `allclose(rtol=1e-4, atol=1e-3)` before timing it.
 A kernel then gets 5 warm-up launches and 10 samples.
@@ -137,7 +137,7 @@ Pending the publication run.
 - The Metal `tile32` has no `#pragma unroll` on its inner loop; the CUDA one does.
 - `reg8x8` is the essay's reader exercise. Change its block shape in `metal.py` and run `uv run tiling-explainer mac --allow-battery`, because a checked run refuses to start with uncommitted changes. Then compare `reg8x8` in `runs/challenge.json` with `reg4x4` in `runs/speeds.json`.
 - The harness records the power state but cannot control clocks or background load.
-- `tests/test_provenance.py` checks each file's `source.commit` against the last commit that touched that file, and each machine's `versions.commit` against the last commit that touched its own run file (`out/mac-runs.json` or `out/a10g-runs.json`). Either commit or its parent passes, so a rerun committed after the run still passes.
+- `tests/test_provenance.py` checks each file's `source.commit` against the last commit that touched that file, and each machine's `versions.commit` against the last commit that touched its own run file (`out/mac-runs.json` or `out/a10-runs.json`). Either commit or its parent passes, so a rerun committed after the run still passes.
 
 ## Sources
 

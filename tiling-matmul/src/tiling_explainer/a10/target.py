@@ -2,9 +2,9 @@ import sys
 
 import cupy as cp
 
-from tiling_explainer.a10g.bench import inputs, launcher
-from tiling_explainer.a10g.ncu import LAUNCHES
-from tiling_explainer.a10g.spec import PROFILED
+from tiling_explainer.a10.bench import inputs, launcher
+from tiling_explainer.a10.ncu import LAUNCHES
+from tiling_explainer.a10.spec import PROFILED
 
 
 def main(n: int) -> None:
