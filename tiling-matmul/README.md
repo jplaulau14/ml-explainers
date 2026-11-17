@@ -1,6 +1,6 @@
 # tiling-matmul
 
-## What this is
+## Overview
 
 Companion code for the essay [Tiling a Matrix Multiply on a Mac and an NVIDIA GPU](https://www.patslaurel.com/writing/tiling-a-matrix-multiply).
 It holds four hand-written fp32 matrix multiply kernels, each in Metal and in CUDA C.
@@ -88,7 +88,7 @@ Each of these cases exits with status 2 and leaves `out/` alone.
 `--n 2048` and `--n 1024` write to `runs/`. `--calls` sets the timing calls, from 3 to 8.
 The cost of a full n = 4096 run is not yet confirmed.
 
-## What you get
+## Output files
 
 - `out/speeds.json`: ratios to naive for `naive`, `tile32`, `reg4x4` and `vendor`, one entry per machine.
 - `out/challenge.json`: the entry for `reg8x8`.
@@ -164,7 +164,7 @@ The A10 run used 3 timing calls and 1 Nsight Compute call, all on "NVIDIA A10", 
 Two other calls landed on an "NVIDIA A10G", refused and were replaced.
 The cuBLAS kernel was `void cutlass::Kernel2<cutlass_80_simt_sgemm_128x64_8x5_nn_align1>(T1::Params)`, and all 12 tensor-pipe counters read 0.
 
-## How this maps to the essay
+## Essay claims and tests
 
 - A T-wide tile loads 2/T values per multiply-add: `tests/test_counts.py::test_claim_tile_loads_two_values_per_tile_width`
 - The 32-wide tile loads one value per 16 multiply-adds: `tests/test_counts.py::test_claim_32_wide_tile_loads_one_value_per_16_multiply_adds`
